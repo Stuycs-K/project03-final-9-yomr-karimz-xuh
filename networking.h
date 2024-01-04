@@ -10,7 +10,9 @@
 #include <sys/wait.h>
 #include <sys/socket.h> 
 #include <netdb.h>
-
+#include <time.h>
+#include <dirent.h>
+#include <sys/types.h>
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
