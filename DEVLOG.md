@@ -8,7 +8,7 @@ updated README.md instructions and project descriptors
 ### 2024-01-04 - 2:30 pm
 updated / inclusion of DEVLOG.md 
 
-## Haxkun Xu
+## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
 updated PROPOSAL.md
