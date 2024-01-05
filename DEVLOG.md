@@ -7,6 +7,7 @@ updated README.md instructions and project descriptors
 
 ### 2024-01-04 - 2:30 pm
 updated / inclusion of DEVLOG.md 
+working on making trivia questions with multiple choice answers
 
 ## Haokun Xu
 
