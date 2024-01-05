@@ -9,7 +9,7 @@ void read_csv() {
     while (fgets(buff, BUFFER_SIZE, questions)) {
         lineCount++;
     }
-    fclose(pop);
+    fclose(questions);
 
 
     questions = fopen("./question_bank", "r");
@@ -30,7 +30,7 @@ void read_csv() {
     }
     
 
-    fclose(pop);
+    fclose(questions);
     int NumberOfElements = columnCount * lineCount;
     struct questionAndOptions* questions = malloc(lineCount, sizeof(struct questionAndOptions));  
     if (entries == NULL) {
@@ -38,10 +38,9 @@ void read_csv() {
     }
     
     // filling in borough array
-    char boroughs[columnCount+1][15];
-    int boroIndex = 0;
+    char headers[columnCount][20];
 
-    pop = fopen("./nyc_pop.csv", "r");
+    questions = fopen("./question_bank.csv", "r");
     fgets(buff, BUFFER_SIZE, pop);
     tempBuff = malloc(BUFFER_SIZE * sizeof(char));
     if (tempBuff == NULL) {
