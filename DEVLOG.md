@@ -38,4 +38,6 @@ added question bank csv file
 worked on CSV parsing; adjusting to fit size of questions
 created question struct
 
-### 2024-01-
+### 2024-01-06 - 6:10pm
+finished CSV parsing; had to switch to strsep over sscanf because sscanf wouldn't work with questions with single letter answers
+segmentation faults fixed by using strsep, couldn't figure out what caused seg. faults with sscanf
