@@ -9,12 +9,17 @@ updated README.md instructions and project descriptors
 updated / inclusion of DEVLOG.md 
 working on making trivia questions with multiple choice answers
 
+### 2024-01-05 - 2:40 pm
+worked on making question bank csv files for all the trivia
+categories for our kahoot/quiz game
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
 updated PROPOSAL.md
 
-### 2024-01-
+### 2024-01-05 - 2:40 pm
+implented client logic for reading and answering questions from the server
 
 ### 2024-01-
 
