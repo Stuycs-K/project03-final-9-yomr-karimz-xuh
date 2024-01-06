@@ -7,41 +7,45 @@
 struct questionAndOptions* read_csv() {
 
     // num of lines
-    FILE* question_bank = fopen("./question_bank", "r");
+    FILE* question_bank = fopen("./question_bank.csv", "r");
+    //printf("opened file\n");
     char buff[BUFFER_SIZE];
+    //printf("created buff\n");
     int lineCount = -1;
-    while (fgets(buff, BUFFER_SIZE, question_bank)) {
+    while (fgets(buff, BUFFER_SIZE, question_bank) != NULL) {
+        if (strlen(buff) < 5) {
+            continue;
+        }
         lineCount++;
     }
+    //printf("lineCount: %d\n", lineCount);
     fclose(question_bank);
 
 
-    question_bank = fopen("./question_bank", "r");
+    question_bank = fopen("./question_bank.csv", "r");
 
 
     fgets(buff, BUFFER_SIZE, question_bank);
-    char* substring;
-    int columnCount = 0;
-
-    char* tempBuff = malloc(BUFFER_SIZE * sizeof(char));
+    char* tempBuff = strdup(buff);
     if (tempBuff == NULL) {
-        perror("malloc error tempBuff\n");
+        perror("strdup error tempBuff\n");
     }
-    strcpy(tempBuff, buff);
+    int columnCount = 0;
+    char* substring;
     // num of columns
     while ((substring = strsep(&tempBuff, ",")) != NULL) {
         columnCount++;
     }
-    
+    //printf("columnCount: %d\n", columnCount);
 
     fclose(question_bank);
     int NumberOfElements = columnCount * lineCount;
-    struct questionAndOptions* questions = malloc(lineCount * sizeof(struct questionAndOptions));  
+    struct questionAndOptions* questions = malloc(NumberOfElements * sizeof(struct questionAndOptions));  
     if (questions == NULL) {
         perror("malloc error questions\n");
     }
     
-    question_bank = fopen("./question_bank", "r");
+    question_bank = fopen("./question_bank.csv", "r");
     fgets(buff, BUFFER_SIZE, question_bank);
 
 
@@ -51,7 +55,47 @@ struct questionAndOptions* read_csv() {
 
     while (fgets(buff, BUFFER_SIZE, question_bank) != NULL) {
 
-        sscanf(buff, "%[^','] %[^','] %[^','] %[^','] %[^','] %[^',']", questions[currentLine].question, questions[currentLine].optionA, questions[currentLine].optionB, questions[currentLine].optionC, questions[currentLine].optionD, questions[currentLine].correctAnswer);
+        // check if line is empty
+        if (strlen(buff) < 5) {
+            continue;
+        }
+
+        int currentColumn = 0;
+
+        tempBuff = strdup(buff);
+        if (tempBuff == NULL) {
+            perror("strdup error tempBuff\n");
+        }
+        while ((substring = strsep(&tempBuff, ",")) != NULL) {
+            if (strlen(substring) <= 0) {
+                continue;
+            }
+            //printf("substring: %s\n", substring);
+            if (currentColumn == 0) {
+                questions[currentLine].question = strdup(substring);
+            }
+            else if (currentColumn == 1) {
+                questions[currentLine].optionA = strdup(substring);
+            }
+            else if (currentColumn == 2) {
+                questions[currentLine].optionB = strdup(substring);
+            }
+            else if (currentColumn == 3) {
+                questions[currentLine].optionC = strdup(substring);
+            }
+            else if (currentColumn == 4) {
+                questions[currentLine].optionD = strdup(substring);
+            }
+            else if (currentColumn == 5) {
+                questions[currentLine].correctAnswer = strdup(substring);
+            }
+            else {
+                perror("error in filling entries\n");
+            }
+            currentColumn++;
+        }
+
+        
         currentLine++;
 
     }
