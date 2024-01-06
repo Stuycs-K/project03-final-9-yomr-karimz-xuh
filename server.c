@@ -1,27 +1,31 @@
 #include "networking.h"
 
-void read_csv() {
+
+
+
+
+struct questionAndOptions* read_csv() {
 
     // num of lines
-    FILE* questions = fopen("./question_bank", "r");
+    FILE* question_bank = fopen("./question_bank", "r");
     char buff[BUFFER_SIZE];
     int lineCount = -1;
-    while (fgets(buff, BUFFER_SIZE, questions)) {
+    while (fgets(buff, BUFFER_SIZE, question_bank)) {
         lineCount++;
     }
-    fclose(questions);
+    fclose(question_bank);
 
 
-    questions = fopen("./question_bank", "r");
+    question_bank = fopen("./question_bank", "r");
 
 
-    fgets(buff, BUFFER_SIZE, pop);
+    fgets(buff, BUFFER_SIZE, question_bank);
     char* substring;
     int columnCount = 0;
 
     char* tempBuff = malloc(BUFFER_SIZE * sizeof(char));
     if (tempBuff == NULL) {
-        err();
+        perror("malloc error tempBuff\n");
     }
     strcpy(tempBuff, buff);
     // num of columns
@@ -30,76 +34,52 @@ void read_csv() {
     }
     
 
-    fclose(questions);
+    fclose(question_bank);
     int NumberOfElements = columnCount * lineCount;
-    struct questionAndOptions* questions = malloc(lineCount, sizeof(struct questionAndOptions));  
-    if (entries == NULL) {
-        err();
+    struct questionAndOptions* questions = malloc(lineCount * sizeof(struct questionAndOptions));  
+    if (questions == NULL) {
+        perror("malloc error questions\n");
     }
     
-    // filling in borough array
-    char headers[columnCount][20];
-
-    questions = fopen("./question_bank.csv", "r");
-    fgets(buff, BUFFER_SIZE, pop);
-    tempBuff = malloc(BUFFER_SIZE * sizeof(char));
-    if (tempBuff == NULL) {
-        err();
-    }
-    strcpy(tempBuff, buff);
+    question_bank = fopen("./question_bank", "r");
+    fgets(buff, BUFFER_SIZE, question_bank);
 
 
-    while ((substring = strsep(&tempBuff, ",")) != NULL) {
-        if (strcmp(substring, "Year") != 0) {
-            size_t endChar = strlen(substring) - 1;
-            size_t carriageChar = strlen(substring) - 2;
-            if (substring[carriageChar] == '\r') substring[carriageChar] = '\0';
-            if (substring[endChar] == '\n') substring[endChar] = '\0';
-                
 
-            strcpy(boroughs[boroIndex], substring);
-            boroIndex++;
-        }
-    }
-    
     // filling entries
-    int currentColumn = 0;
     int currentLine = 0;
-    int currentYear = 0;
-    int currentPopulation = 0;
 
-    while (fgets(buff, BUFFER_SIZE, pop) != NULL) {
-        currentColumn = 0;
-        tempBuff = malloc(BUFFER_SIZE * sizeof(char));
-        if (tempBuff == NULL) {
-            err();
-        }
-        strcpy(tempBuff, buff);
-        while ((substring = strsep(&tempBuff, ",")) != NULL && currentColumn < columnCount+1) { // going through columns
-            if (currentColumn == 0) {
-                sscanf(substring, "%d", &currentYear);
-                currentColumn++;
-                continue;
-            }
-            
-            int index = currentLine * columnCount + currentColumn - 1;
-            sscanf(substring, "%d", &currentPopulation);
-            entries[index].year = currentYear;
-            entries[index].population = currentPopulation;
-            strcpy(entries[index].boro, boroughs[currentColumn - 1]);
+    while (fgets(buff, BUFFER_SIZE, question_bank) != NULL) {
 
-            currentColumn++;
-
-
-        }
+        sscanf(buff, "%[^','] %[^','] %[^','] %[^','] %[^','] %[^',']", questions[currentLine].question, questions[currentLine].optionA, questions[currentLine].optionB, questions[currentLine].optionC, questions[currentLine].optionD, questions[currentLine].correctAnswer);
         currentLine++;
+
     }
 
 
-    fclose(pop);
-    // writing to dat file
-    printf("File written with %zd bytes\n", write(wfile, entries, NumberOfElements * sizeof(struct pop_entry)));
-    close(wfile);
+    fclose(question_bank);
+
+    // print all questions with options in the format
+    // question
+    // A. optionA
+    // B. optionB
+    // C. optionC
+    // D. optionD
+    // correctAnswer
+
+    for (int i = 0; i < lineCount; i++) {
+        printf("%s\n", questions[i].question);
+        printf("A. %s\n", questions[i].optionA);
+        printf("B. %s\n", questions[i].optionB);
+        printf("C. %s\n", questions[i].optionC);
+        printf("D. %s\n", questions[i].optionD);
+        printf("%s\n", questions[i].correctAnswer);
+    }
+
+
+    return questions;
+
+
     
 }
 
@@ -125,40 +105,40 @@ void subserver_logic(int client_socket){
 
 int main(int argc, char *argv[] ) {
 
-  
+  struct questionAndOptions* questions = read_csv();
 
 
-  int client_socket = server_setup(); 
+  // int client_socket = server_setup(); 
 
 
-  while (1) {
-    int subserver_socket = server_tcp_handshake(client_socket);
+  // while (1) {
+  //   int subserver_socket = server_tcp_handshake(client_socket);
 
-    int process = fork();
-    if (process < 0) {
-      perror("Forking error\n");
-      exit(1);
-    }
+  //   int process = fork();
+  //   if (process < 0) {
+  //     perror("Forking error\n");
+  //     exit(1);
+  //   }
 
 
-    else if (process == 0) {
+  //   else if (process == 0) {
       
 
       
-      printf("[server] connected to client\n");
-      subserver_logic(subserver_socket);
-      exit(0);
+  //     printf("[server] connected to client\n");
+  //     subserver_logic(subserver_socket);
+  //     exit(0);
 
-    }
+  //   }
 
-    else {
+  //   else {
 
-      close(subserver_socket);
-    }
+  //     close(subserver_socket);
+  //   }
     
     
 
-  }
+  // }
   
   return 0;
 }
