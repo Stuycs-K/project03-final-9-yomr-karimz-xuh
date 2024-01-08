@@ -111,14 +111,14 @@ struct questionAndOptions* read_csv() {
     // D. optionD
     // correctAnswer
 
-    for (int i = 0; i < lineCount; i++) {
-        printf("%s\n", questions[i].question);
-        printf("A. %s\n", questions[i].optionA);
-        printf("B. %s\n", questions[i].optionB);
-        printf("C. %s\n", questions[i].optionC);
-        printf("D. %s\n", questions[i].optionD);
-        printf("%s\n", questions[i].correctAnswer);
-    }
+    // for (int i = 0; i < lineCount; i++) {
+    //     printf("%s\n", questions[i].question);
+    //     printf("A. %s\n", questions[i].optionA);
+    //     printf("B. %s\n", questions[i].optionB);
+    //     printf("C. %s\n", questions[i].optionC);
+    //     printf("D. %s\n", questions[i].optionD);
+    //     printf("%s\n", questions[i].correctAnswer);
+    // }
 
 
     return questions;
@@ -129,20 +129,29 @@ struct questionAndOptions* read_csv() {
 
 
 
-void subserver_logic(int client_socket){
-  char buffer[BUFFER_SIZE];
-  int bytes_read;
+void subserver_logic(int client_socket, struct questionAndOptions* questions){
+    char buffer[BUFFER_SIZE];
+    int bytes_read;
 
+    sprintf(buffer, "Welcome to our Quiz Show!\nToday's topic will be general trivia.\nBeginning...\n");
+    write(client_socket, buffer, bytes_read);
 
-  bytes_read = read(client_socket, buffer, sizeof(buffer));
-  if (bytes_read <= 0) {
+    int i = 0;
+    while (questions[i].question != NULL) {
+        sprintf(buffer, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", questions[i].question, questions[i].optionA, questions[i].optionB, questions[i].optionC, questions[i].optionD);
+        if (write(client_socket, buffer, bytes_read) < 0) perror("Couldn't send question to server\n");
+        if (read(client_socket, buffer, bytes_read) < 0) perror("Couldn't write answer from client\n");
+    }
+
+    bytes_read = read(client_socket, buffer, sizeof(buffer));
+    if (bytes_read <= 0) {
     printf("client disconnected\n");
     exit(0);
-  }
+    }
 
 
-  write(client_socket, buffer, bytes_read);
-  printf("Sent back to client: %s\n", buffer);
+    
+    printf("Sent back to client: %s\n", buffer);
 }
 
 
@@ -152,37 +161,37 @@ int main(int argc, char *argv[] ) {
   struct questionAndOptions* questions = read_csv();
 
 
-  // int client_socket = server_setup(); 
+  int client_socket = server_setup(); 
 
 
-  // while (1) {
-  //   int subserver_socket = server_tcp_handshake(client_socket);
+  while (1) {
+    int subserver_socket = server_tcp_handshake(client_socket);
 
-  //   int process = fork();
-  //   if (process < 0) {
-  //     perror("Forking error\n");
-  //     exit(1);
-  //   }
+    int process = fork();
+    if (process < 0) {
+      perror("Forking error\n");
+      exit(1);
+    }
 
 
-  //   else if (process == 0) {
+    else if (process == 0) {
       
 
       
-  //     printf("[server] connected to client\n");
-  //     subserver_logic(subserver_socket);
-  //     exit(0);
+      printf("[server] connected to client\n");
+      subserver_logic(subserver_socket, questions);
+      exit(0);
 
-  //   }
+    }
 
-  //   else {
+    else {
 
-  //     close(subserver_socket);
-  //   }
+      close(subserver_socket);
+    }
     
     
 
-  // }
+  }
   
   return 0;
 }

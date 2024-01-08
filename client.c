@@ -33,6 +33,7 @@ void clientLogic(int server_socket){
 
     printf("Question %d: %s\n", current_question_number, question_buffer); // print question to client
     fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
+    int i = 0;
     while (response_buffer[i]) {
       if (response_buffer[i] == '\n') response_buffer[i] = '\0';
       i++;
