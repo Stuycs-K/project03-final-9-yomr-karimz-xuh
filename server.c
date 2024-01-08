@@ -1,9 +1,5 @@
 #include "networking.h"
 
-
-
-
-
 struct questionAndOptions* read_csv() {
 
     // num of lines
@@ -127,24 +123,30 @@ struct questionAndOptions* read_csv() {
     
 }
 
+void subserver_logic(int * client_sockets, int client_count){
+    char buff[BUFFER_SIZE];
 
+    fd_set descriptors;
+    FD_ZERO(&descriptors);
 
-void subserver_logic(int client_socket){
-  char buffer[BUFFER_SIZE];
-  int bytes_read;
+    int max_descriptor = -1;
+    for (int i = 0; i < client_count; i++) {
+        int client_socket = client_sockets[i];
+        FD_SET(client_socket, &descriptors);
+        if (client_socket > max_descriptor) {
+            max_descriptor = client_socket;
+        }
+    }
 
-
-  bytes_read = read(client_socket, buffer, sizeof(buffer));
-  if (bytes_read <= 0) {
-    printf("client disconnected\n");
-    exit(0);
-  }
-
-
-  write(client_socket, buffer, bytes_read);
-  printf("Sent back to client: %s\n", buffer);
+    select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
+    
+    for (int i = 0; i < client_count; i++) {
+        if (FD_ISSET(client_sockets[i], &descriptors)) {
+            // handle data from each client in HEREREREREREREREEEEEEE
+            
+        }
+    }
 }
-
 
 
 int main(int argc, char *argv[] ) {
