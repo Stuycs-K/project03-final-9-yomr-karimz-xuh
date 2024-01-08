@@ -2,7 +2,8 @@
 
 // sighandler to handle game ending
 void game_end(int signum) {
-  
+  printf("\n game is over! displaying final scores of players...");
+  exit(0);
 }
 
 void clientLogic(int server_socket){
@@ -43,6 +44,8 @@ void clientLogic(int server_socket){
   }
 
   // display final scores at the end
+
+
 
   close(server_socket);
 }
