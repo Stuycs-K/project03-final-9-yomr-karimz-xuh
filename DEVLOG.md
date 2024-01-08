@@ -26,7 +26,7 @@ updated PROPOSAL.md
 implented client logic for reading and answering questions from the server
 
 ### 2024-01-08 - 2:30 pm
-working on client connections to server from separate hosts
+working on client connections to server from separate hosts using select
 
 ## Zidane Karim
 
