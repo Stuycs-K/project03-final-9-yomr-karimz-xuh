@@ -13,39 +13,6 @@ void send_question(int* client_sockets, int num_clients, char* question) {
     }
 }
 
-long getTimeDifference(struct timeval start, struct timeval end) {
-    return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
-}
-
-// function to check if the player's answer is correct and award points
-int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct timeval startTime) {
-    struct timeval endTime;
-    gettimeofday(&endTime, NULL);
-
-    // Check if the player's answer is correct
-    if (strcmp(playerAnswer, question->correctAnswer) == 0) {
-        // Calculate time taken by the player
-        long timeTaken = getTimeDifference(startTime, endTime);
-
-        // award points based on time taken 
-        int points = 0;
-        if (timeTaken < 5000) {
-            points = 100;
-        } else if (timeTaken < 10000) {
-            points = 50;
-        } else {
-            points = 25;
-        }
-
-        printf("Correct! Awarded %d points.\n", points);
-        return points;
-    } 
-    else {
-        printf("Incorrect! No points awarded.\n");
-        return 0;
-    }
-}
-
 struct questionAndOptions* read_csv() {
 
     // num of lines
@@ -164,13 +131,11 @@ struct questionAndOptions* read_csv() {
 
 
     return questions;
-
-
-    
 }
 
 void subserver_logic(int * client_sockets, int client_count){
-    char buff[BUFFER_SIZE];
+    struct questionAndOptions* questions = read_csv();
+    char response[BUFFER_SIZE];
 
     fd_set descriptors;
     FD_ZERO(&descriptors);
@@ -189,16 +154,18 @@ void subserver_logic(int * client_sockets, int client_count){
     for (int i = 0; i < client_count; i++) {
         if (FD_ISSET(client_sockets[i], &descriptors)) {
             // handle data from each client in HEREREREREREREREEEEEEE
-            
+            read(client_sockets[i], response, BUFFER_SIZE);
+            if (strcmp(response, correct_answer) == 0) {
+
+            } else {
+
+            }
         }
     }
 }
 
 
 int main(int argc, char *argv[] ) {
-
-  struct questionAndOptions* questions = read_csv();
-
 
   // int client_socket = server_setup(); 
 
