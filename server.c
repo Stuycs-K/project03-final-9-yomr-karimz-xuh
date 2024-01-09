@@ -1,8 +1,17 @@
 #include "networking.h"
 
+void broadcast_message(int* client_sockets, int num_clients, char* message) {
+    for (int i = 0; i < num_clients; i++) {
+        write(client_sockets[i], message, strlen(message) + 1);
+    }
+}
 
-
-
+// Function to send a question to all connected clients
+void send_question(int* client_sockets, int num_clients, char* question) {
+    for (int i = 0; i < num_clients; i++) {
+        write(client_sockets[i], question, strlen(question) + 1);
+    }
+}
 
 struct questionAndOptions* read_csv() {
 
@@ -122,38 +131,35 @@ struct questionAndOptions* read_csv() {
 
 
     return questions;
-
-
-    
 }
 
+void subserver_logic(int * client_sockets, int client_count){
+    struct questionAndOptions* questions = read_csv();
+    int client_new_score;
 
+    while (1) {
+        fd_set descriptors;
+        FD_ZERO(&descriptors);
 
-void subserver_logic(int client_socket, struct questionAndOptions* questions){
-    char buffer[BUFFER_SIZE];
-    int bytes_read;
+        int max_descriptor = -1;
+        for (int i = 0; i < client_count; i++) {
+            int client_socket = client_sockets[i];
+            FD_SET(client_socket, &descriptors);
+            if (client_socket > max_descriptor) {
+                max_descriptor = client_socket;
+            }
+        }
 
-    sprintf(buffer, "Welcome to our Quiz Show!\nToday's topic will be general trivia.\nBeginning...\n");
-    write(client_socket, buffer, bytes_read);
-
-    int i = 0;
-    while (questions[i].question != NULL) {
-        sprintf(buffer, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", questions[i].question, questions[i].optionA, questions[i].optionB, questions[i].optionC, questions[i].optionD);
-        if (write(client_socket, buffer, bytes_read) < 0) perror("Couldn't send question to server\n");
-        if (read(client_socket, buffer, bytes_read) < 0) perror("Couldn't write answer from client\n");
+        select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
+        
+        for (int i = 0; i < client_count; i++) {
+            if (FD_ISSET(client_sockets[i], &descriptors)) {
+                // score processing is handled on client side
+                read(client_sockets[i], client_new_score, sizeof(int));
+            }
+        }
     }
-
-    bytes_read = read(client_socket, buffer, sizeof(buffer));
-    if (bytes_read <= 0) {
-    printf("client disconnected\n");
-    exit(0);
-    }
-
-
-    
-    printf("Sent back to client: %s\n", buffer);
 }
-
 
 
 int main(int argc, char *argv[] ) {
@@ -176,7 +182,7 @@ int main(int argc, char *argv[] ) {
 
     else if (process == 0) {
       
-
+ 
       
       printf("[server] connected to client\n");
       subserver_logic(subserver_socket, questions);
