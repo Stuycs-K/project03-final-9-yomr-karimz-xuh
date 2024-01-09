@@ -131,13 +131,11 @@ struct questionAndOptions* read_csv() {
 
 
     return questions;
-
-
-    
 }
 
 void subserver_logic(int * client_sockets, int client_count){
-    char buff[BUFFER_SIZE];
+    struct questionAndOptions* questions = read_csv();
+    char response[BUFFER_SIZE];
 
     fd_set descriptors;
     FD_ZERO(&descriptors);
@@ -156,16 +154,18 @@ void subserver_logic(int * client_sockets, int client_count){
     for (int i = 0; i < client_count; i++) {
         if (FD_ISSET(client_sockets[i], &descriptors)) {
             // handle data from each client in HEREREREREREREREEEEEEE
-            
+            read(client_sockets[i], response, BUFFER_SIZE);
+            if (strcmp(response, correct_answer) == 0) {
+
+            } else {
+
+            }
         }
     }
 }
 
 
 int main(int argc, char *argv[] ) {
-
-  struct questionAndOptions* questions = read_csv();
-
 
   // int client_socket = server_setup(); 
 
