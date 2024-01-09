@@ -17,6 +17,9 @@ categories for our kahoot/quiz game
 worked on point system for game logic 
 including handling storing point values for players
 
+### 2024-01-09 - 2:50 pm
+worked on game end system with displaying scores, sending points to server
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -27,6 +30,9 @@ implented client logic for reading and answering questions from the server
 
 ### 2024-01-08 - 2:30 pm
 working on client connections to server from separate hosts using select
+
+### 2024-01-09 - 2:50 pm
+refactored score system and implemented into client 
 
 ## Zidane Karim
 
@@ -50,3 +56,6 @@ segmentation faults fixed by using strsep, couldn't figure out what caused seg. 
 ### 2024-01-08 - 2:30 pm
 worked on game logic for the quiz including point system + text
 logic + error handling + maximum client handling 
+
+### 2024-01-08 - 2:50 pm 
+NOTE: absent from class 

@@ -87,6 +87,8 @@ void clientLogic(int server_socket){
         current_question_number++;
     }
 
+
+
   // display final scores at the end
 
   close(server_socket);
