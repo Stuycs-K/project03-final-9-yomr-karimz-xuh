@@ -13,27 +13,46 @@ void clientLogic(int server_socket){
   int bytes_read;
   int current_question_number = 0;
 
-  // wait for game to start, block until server sends a question
+  // wait for game to start, block until the server sends a question
   printf("Waiting for game to start...");
   bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
   if (bytes_read <= 0) {
-    printf("server disconnected\n");
+    printf("Server disconnected\n");
     exit(0);
   }
 
-  // once server sends the first question, loop
+  // once the server sends the first question, loop
   while (1) {
     // read question
     bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
     if (bytes_read <= 0) {
-      printf("server disconnected\n");
+      printf("Server disconnected\n");
       exit(0);
     }
 
     // handle game ending signal
+    if (strcmp(question_buffer, "GAME_END") == 0) {
+      printf("Game has ended. Displaying final scores...\n");
+      while (1) {
+        bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
+        if (bytes_read <= 0) {
+          printf("Server disconnected\n");
+          exit(0);
+        }
+
+        // Check if the server has finished sending scores
+        if (strcmp(response_buffer, "END_SCORES") == 0) {
+          break;
+        }
+
+        printf("%s\n", response_buffer);
+      }
+
+      exit(0);
+    }
 
     printf("Question %d: %s\n", current_question_number, question_buffer); // print question to client
-    fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
+    fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from the command line
     while (response_buffer[i]) {
       if (response_buffer[i] == '\n') response_buffer[i] = '\0';
       i++;
@@ -42,6 +61,8 @@ void clientLogic(int server_socket){
 
     current_question_number++;
   }
+
+
 
   // display final scores at the end
 
