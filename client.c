@@ -14,12 +14,25 @@ long getTimeDifference(struct timeval start, struct timeval end) {
 
 
 // function to check if the player's answer is correct and award points
-int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct timeval startTime) {
+int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval startTime, char* optionA, char* optionB, char* optionC, char* optionD) {
     struct timeval endTime;
     gettimeofday(&endTime, NULL);
 
+    if (strcmp(playerAnswer, "A") == 0) {
+        strcpy(playerAnswer, optionA);
+    }
+    else if (strcmp(playerAnswer, "B") == 0) {
+        strcpy(playerAnswer, optionB);
+    }
+    else if (strcmp(playerAnswer, "C") == 0) {
+        strcpy(playerAnswer, optionC);
+    }
+    else if (strcmp(playerAnswer, "D") == 0) {
+        strcpy(playerAnswer, optionD);
+    }
+
     // Check if the player's answer is correct
-    if (strcmp(playerAnswer, question->correctAnswer) == 0) {
+    if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
         // Calculate time taken by the player
         long timeTaken = getTimeDifference(startTime, endTime);
 
@@ -44,8 +57,13 @@ int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct 
 
 void clientLogic(int server_socket){
 
-    struct questionAndOptions * question_buffer;
+    //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
+    char correct_answer_buffer[BUFFER_SIZE];
+    char optionA[BUFFER_SIZE];
+    char optionB[BUFFER_SIZE];
+    char optionC[BUFFER_SIZE];
+    char optionD[BUFFER_SIZE];
     int score = 0;
 
     int bytes_read;
@@ -60,31 +78,109 @@ void clientLogic(int server_socket){
 
     printf("%s\n", response_buffer);
 
+
+    //printf("Here1!\n");
   // once server sends the first question, loop
     while (1) {
+        int i = 0;
+        //printf("Here!\n");
+
         // read question
         bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
         if (bytes_read <= 0) {
-            printf("server disconnected\n");
+            printf("server disconnected for question string\n");
             exit(0);
         }
-
         // handle game ending signal
+
         signal(SIGUSR1, game_end);
+
+        printf("Question %d: %s\n", current_question_number+1, response_buffer); // print question to client
+        fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
+        while (response_buffer[i]) {
+            // uppercase the response
+            if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
+                response_buffer[i] = response_buffer[i] - 32;
+            }
+
+            i++;
+        }
+
+        printf("Your answer: %s\n", response_buffer); // print client response to client
+
+
+        bytes_read = read(server_socket, correct_answer_buffer, sizeof(correct_answer_buffer));
+        if (bytes_read <= 0) {
+            printf("server disconnected for question\n");
+            exit(0);
+        }
+        // remove newline from correct answer
+        i = 0;
+        while (correct_answer_buffer[i]) {
+            if (correct_answer_buffer[i] == '\n') correct_answer_buffer[i] = '\0';
+            i++;
+        }
+
+        
+
+        printf("Got to A\n");
+        bytes_read = read(server_socket, optionA, sizeof(optionA));
+        if (bytes_read <= 0) {
+            printf("server disconnected for optionA\n");
+            exit(0);
+        }
+        i = 0;
+        while (optionA[i]) {
+            if (optionA[i] == '\n') optionA[i] = '\0';
+            i++;
+        }
+        
+
+        printf("Got to B\n");
+        bytes_read = read(server_socket, optionB, sizeof(optionB));
+        if (bytes_read <= 0) {
+            printf("server disconnected for optionB\n");
+            exit(0);
+        }
+        i = 0;
+        while (optionB[i]) {
+            if (optionB[i] == '\n') optionB[i] = '\0';
+            i++;
+        }
+        bytes_read = read(server_socket, optionC, sizeof(optionC));
+        if (bytes_read <= 0) {
+            printf("server disconnected for optionC\n");
+            exit(0);
+        }
+        i = 0;
+        while (optionC[i]) {
+            if (optionC[i] == '\n') optionC[i] = '\0';
+            i++;
+        }
+        printf("Got to D\n");
+        bytes_read = read(server_socket, optionD, sizeof(optionD));
+        if (bytes_read <= 0) {
+            printf("server disconnected for optionD\n");
+            exit(0);
+        }
+        i = 0;
+        while (optionD[i]) {
+            if (optionD[i] == '\n') optionD[i] = '\0';
+            i++;
+        }
+        
+
+        
 
         struct timeval start_time;
         gettimeofday(&start_time, NULL);
 
-        int i = 0;
-        printf("Question %d: %s\n", current_question_number, response_buffer); // print question to client
-        fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
-        while (response_buffer[i]) {
-            if (response_buffer[i] == '\n') response_buffer[i] = '\0';
-            i++;
-        }
+        
 
-        int add_points = pointSystem(question_buffer, response_buffer, start_time);
-        score = score + add_points;
+        
+
+        int add_points = pointSystem(correct_answer_buffer, response_buffer, start_time, optionA, optionB, optionC, optionD);
+        score += add_points;
 
         write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
 

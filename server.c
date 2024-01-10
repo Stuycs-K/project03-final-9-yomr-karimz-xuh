@@ -7,6 +7,7 @@ void broadcast_message(int* client_sockets, int num_clients, char* message, int 
 }
 
 
+
 struct questionAndOptions* read_csv() {
 
     // num of lines
@@ -180,6 +181,22 @@ int main(int argc, char *argv[] ) {
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
                     sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+
+                    //printf("Sent question to all clients\n");
+                    char correct_answer[BUFFER_SIZE];
+                    strcpy(correct_answer, questions[0].correctAnswer);
+                    int i = 0;
+                    while (correct_answer[i]) {
+                        if (correct_answer[i] == '\n') correct_answer[i] = '\0';
+                        i++;
+                    }
+                    
+                    broadcast_message(client_sockets, client_count, correct_answer, strlen(correct_answer)+1);
+                    //printf("Sent correct answer to all clients\n");
+                    broadcast_message(client_sockets, client_count, optionA, strlen(optionA)+1);
+                    broadcast_message(client_sockets, client_count, optionB, strlen(optionB)+1);
+                    broadcast_message(client_sockets, client_count, optionC, strlen(optionC)+1);
+                    broadcast_message(client_sockets, client_count, optionD, strlen(optionD)+1);
                 }
             
 
