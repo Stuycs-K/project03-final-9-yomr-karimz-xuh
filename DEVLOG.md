@@ -57,5 +57,8 @@ segmentation faults fixed by using strsep, couldn't figure out what caused seg. 
 worked on game logic for the quiz including point system + text
 logic + error handling + maximum client handling 
 
-### 2024-01-08 - 2:50 pm 
+### 2024-01-09 - 2:50 pm 
 NOTE: absent from class 
+
+### 2024-01-09 - 10:50 pm 
+worked on moving subserver code to main; current error is that text will not send to client, client immediately crashes
