@@ -7,7 +7,7 @@ void game_end(int signum) {
 }
 
 long getTimeDifference(struct timeval start, struct timeval end) {
-    return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+  return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 }
 
 
@@ -15,31 +15,31 @@ long getTimeDifference(struct timeval start, struct timeval end) {
 
 // function to check if the player's answer is correct and award points
 int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct timeval startTime) {
-    struct timeval endTime;
-    gettimeofday(&endTime, NULL);
+  struct timeval endTime;
+  gettimeofday(&endTime, NULL);
 
-    // Check if the player's answer is correct
-    if (strcmp(playerAnswer, question->correctAnswer) == 0) {
-        // Calculate time taken by the player
-        long timeTaken = getTimeDifference(startTime, endTime);
+  // Check if the player's answer is correct
+  if (strcmp(playerAnswer, question->correctAnswer) == 0) {
+    // Calculate time taken by the player
+    long timeTaken = getTimeDifference(startTime, endTime);
 
-        // award points based on time taken 
-        int points = 0;
-        if (timeTaken < 5000) {
-            points = 100;
-        } else if (timeTaken < 10000) {
-            points = 50;
-        } else {
-            points = 25;
-        }
-
-        printf("Correct! Awarded %d points.\n", points);
-        return points;
-    } 
-    else {
-        printf("Incorrect! No points awarded.\n");
-        return 0;
+    // award points based on time taken 
+    int points = 0;
+    if (timeTaken < 5000) {
+      points = 100;
+    } else if (timeTaken < 10000) {
+      points = 50;
+    } else {
+      points = 25;
     }
+
+    printf("Correct! Awarded %d points.\n", points);
+    return points;
+  } 
+  else {
+    printf("Incorrect! No points awarded.\n");
+    return 0;
+  }
 }
 
 void clientLogic(int server_socket){
@@ -75,6 +75,14 @@ void clientLogic(int server_socket){
         struct timeval start_time;
         gettimeofday(&start_time, NULL);
 
+    int i = 0;
+    printf("Question %d: %s\n", current_question_number, question_buffer); // print question to client (may not be needed)
+    fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from the command line
+    while (response_buffer[i]) {
+      if (response_buffer[i] == '\n') response_buffer[i] = '\0';
+      i++;
+    }
+    write(server_socket, response_buffer, sizeof(response_buffer)); // write the response back to the server
         int i = 0;
         printf("Question %d: %s\n", current_question_number, response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
@@ -107,3 +115,4 @@ int main(int argc, char *argv[] ) {
     printf("client connected.\n");
     clientLogic(server_socket);
 }
+

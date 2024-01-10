@@ -20,6 +20,9 @@ including handling storing point values for players
 ### 2024-01-09 - 2:50 pm
 worked on game end system with displaying scores, sending points to server
 
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c broadcast message and beyond (pair programming)
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -33,6 +36,9 @@ working on client connections to server from separate hosts using select
 
 ### 2024-01-09 - 2:50 pm
 refactored score system and implemented into client 
+
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c broadcast message and beyond (pair programming)
 
 ## Zidane Karim
 
@@ -62,3 +68,6 @@ NOTE: absent from class
 
 ### 2024-01-09 - 10:50 pm 
 worked on moving subserver code to main; current error is that text will not send to client, client immediately crashes
+
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c broadcast message and beyond (pair programming)
