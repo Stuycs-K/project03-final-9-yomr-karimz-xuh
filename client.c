@@ -10,6 +10,9 @@ long getTimeDifference(struct timeval start, struct timeval end) {
     return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 }
 
+
+
+
 // function to check if the player's answer is correct and award points
 int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct timeval startTime) {
     struct timeval endTime;
@@ -49,10 +52,9 @@ void clientLogic(int server_socket){
     int current_question_number = 0;
 
     // wait for game to start, block until server sends a question
-    printf("Waiting for game to start...");
     bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
     if (bytes_read <= 0) {
-        printf("server disconnected\n");
+        printf("server disconnected LOL\n");
         exit(0);
     }
 
