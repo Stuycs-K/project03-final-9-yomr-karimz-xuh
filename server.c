@@ -135,30 +135,27 @@ struct questionAndOptions* read_csv() {
 
 void subserver_logic(int * client_sockets, int client_count){
     struct questionAndOptions* questions = read_csv();
-    char response[BUFFER_SIZE];
+    int client_new_score;
 
-    fd_set descriptors;
-    FD_ZERO(&descriptors);
+    while (1) {
+        fd_set descriptors;
+        FD_ZERO(&descriptors);
 
-    int max_descriptor = -1;
-    for (int i = 0; i < client_count; i++) {
-        int client_socket = client_sockets[i];
-        FD_SET(client_socket, &descriptors);
-        if (client_socket > max_descriptor) {
-            max_descriptor = client_socket;
+        int max_descriptor = -1;
+        for (int i = 0; i < client_count; i++) {
+            int client_socket = client_sockets[i];
+            FD_SET(client_socket, &descriptors);
+            if (client_socket > max_descriptor) {
+                max_descriptor = client_socket;
+            }
         }
-    }
 
-    select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
-    
-    for (int i = 0; i < client_count; i++) {
-        if (FD_ISSET(client_sockets[i], &descriptors)) {
-            // handle data from each client in HEREREREREREREREEEEEEE
-            read(client_sockets[i], response, BUFFER_SIZE);
-            if (strcmp(response, correct_answer) == 0) {
-
-            } else {
-
+        select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
+        
+        for (int i = 0; i < client_count; i++) {
+            if (FD_ISSET(client_sockets[i], &descriptors)) {
+                // score processing is handled on client side
+                read(client_sockets[i], client_new_score, sizeof(int));
             }
         }
     }
