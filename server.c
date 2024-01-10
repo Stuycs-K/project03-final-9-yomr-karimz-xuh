@@ -1,8 +1,8 @@
 #include "networking.h"
 
-void broadcast_message(int* client_sockets, int num_clients, char* message) {
+void broadcast_message(int* client_sockets, int num_clients, char* message, int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], message, strlen(message) + 1);
+        write(client_sockets[i], message, sizeBuff);
     }
 }
 
@@ -69,7 +69,7 @@ struct questionAndOptions* read_csv() {
         if (tempBuff == NULL) {
             perror("strdup error tempBuff\n");
         }
-        while ((substring = strsep(&tempBuff, ",")) != NULL) {
+        while ((substring = strsep(&tempBuff, ",")) != NULL && currentColumn < 6) {
             if (strlen(substring) <= 0) {
                 continue;
             }
@@ -170,12 +170,16 @@ int main(int argc, char *argv[] ) {
                 char* optionD = questions[0].optionD;
 
                 char message[BUFFER_SIZE];
-                sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
+                
 
                 if (client_count == MAX_PLAYERS) {
                     printf("Beginning...\n");
-                    broadcast_message(client_sockets, client_count, "Game starting...\n");
-                    broadcast_message(client_sockets, client_count, message);
+                    //sprintf(message, "Game starting...\n");
+                    char str1[20] = "Game starting...\n";
+                    strcpy(message, str1);
+                    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+                    sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
+                    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
                 }
             
 

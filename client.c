@@ -52,16 +52,18 @@ void clientLogic(int server_socket){
     int current_question_number = 0;
 
     // wait for game to start, block until server sends a question
-    bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
+    bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
     if (bytes_read <= 0) {
         printf("server disconnected LOL\n");
         exit(0);
     }
 
+    printf("%s\n", response_buffer);
+
   // once server sends the first question, loop
     while (1) {
         // read question
-        bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
+        bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
         if (bytes_read <= 0) {
             printf("server disconnected\n");
             exit(0);
@@ -74,7 +76,7 @@ void clientLogic(int server_socket){
         gettimeofday(&start_time, NULL);
 
         int i = 0;
-        printf("Question %d: %s\n", current_question_number, question_buffer->question); // print question to client
+        printf("Question %d: %s\n", current_question_number, response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
         while (response_buffer[i]) {
             if (response_buffer[i] == '\n') response_buffer[i] = '\0';
