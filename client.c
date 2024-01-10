@@ -82,21 +82,22 @@ void clientLogic(int server_socket){
       if (response_buffer[i] == '\n') response_buffer[i] = '\0';
       i++;
     }
+
     write(server_socket, response_buffer, sizeof(response_buffer)); // write the response back to the server
-        int i = 0;
-        printf("Question %d: %s\n", current_question_number, response_buffer); // print question to client
-        fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
-        while (response_buffer[i]) {
-            if (response_buffer[i] == '\n') response_buffer[i] = '\0';
-            i++;
-        }
+    i = 0;
+    printf("Question %d: %s\n", current_question_number, response_buffer); // print question to client
+    fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
+    while (response_buffer[i]) {
+        if (response_buffer[i] == '\n') response_buffer[i] = '\0';
+        i++;
+    }
 
-        int add_points = pointSystem(question_buffer, response_buffer, start_time);
-        score = score + add_points;
+    int add_points = pointSystem(question_buffer, response_buffer, start_time);
+    score = score + add_points;
 
-        write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
+    write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
 
-        current_question_number++;
+    current_question_number++;
     }
 
 
