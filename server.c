@@ -1,17 +1,11 @@
 #include "networking.h"
 
-void broadcast_message(int* client_sockets, int num_clients, char* message) {
+void broadcast_message(int* client_sockets, int num_clients, char* message, int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], message, strlen(message) + 1);
+        write(client_sockets[i], message, sizeBuff);
     }
 }
 
-// Function to send a question to all connected clients
-void send_question(int* client_sockets, int num_clients, char* question) {
-    for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], question, strlen(question) + 1);
-    }
-}
 
 struct questionAndOptions* read_csv() {
 
@@ -75,7 +69,7 @@ struct questionAndOptions* read_csv() {
         if (tempBuff == NULL) {
             perror("strdup error tempBuff\n");
         }
-        while ((substring = strsep(&tempBuff, ",")) != NULL) {
+        while ((substring = strsep(&tempBuff, ",")) != NULL && currentColumn < 6) {
             if (strlen(substring) <= 0) {
                 continue;
             }
@@ -120,81 +114,97 @@ struct questionAndOptions* read_csv() {
     // D. optionD
     // correctAnswer
 
-    for (int i = 0; i < lineCount; i++) {
-        printf("%s\n", questions[i].question);
-        printf("A. %s\n", questions[i].optionA);
-        printf("B. %s\n", questions[i].optionB);
-        printf("C. %s\n", questions[i].optionC);
-        printf("D. %s\n", questions[i].optionD);
-        printf("%s\n", questions[i].correctAnswer);
-    }
+    // for (int i = 0; i < lineCount; i++) {
+    //     printf("%s\n", questions[i].question);
+    //     printf("A. %s\n", questions[i].optionA);
+    //     printf("B. %s\n", questions[i].optionB);
+    //     printf("C. %s\n", questions[i].optionC);
+    //     printf("D. %s\n", questions[i].optionD);
+    //     printf("%s\n", questions[i].correctAnswer);
+    // }
 
 
     return questions;
 }
 
-void subserver_logic(int * client_sockets, int client_count){
-    struct questionAndOptions* questions = read_csv();
-    int client_new_score;
 
-    while (1) {
-        fd_set descriptors;
-        FD_ZERO(&descriptors);
-
-        int max_descriptor = -1;
-        for (int i = 0; i < client_count; i++) {
-            int client_socket = client_sockets[i];
-            FD_SET(client_socket, &descriptors);
-            if (client_socket > max_descriptor) {
-                max_descriptor = client_socket;
-            }
-        }
-
-        select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
-        
-        for (int i = 0; i < client_count; i++) {
-            if (FD_ISSET(client_sockets[i], &descriptors)) {
-                // score processing is handled on client side
-                read(client_sockets[i], client_new_score, sizeof(int));
-            }
-        }
-    }
-}
 
 
 int main(int argc, char *argv[] ) {
 
-  // int client_socket = server_setup(); 
+    struct questionAndOptions* questions = read_csv();
 
 
-  // while (1) {
-  //   int subserver_socket = server_tcp_handshake(client_socket);
-
-  //   int process = fork();
-  //   if (process < 0) {
-  //     perror("Forking error\n");
-  //     exit(1);
-  //   }
+    int listen_socket = server_setup(); 
 
 
-  //   else if (process == 0) {
-      
- 
-      
-  //     printf("[server] connected to client\n");
-  //     subserver_logic(subserver_socket);
-  //     exit(0);
+    int client_sockets[MAX_PLAYERS];
+    int client_count = 0;
 
-  //   }
 
-  //   else {
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
 
-  //     close(subserver_socket);
-  //   }
-    
-    
+    while (1) {
+        FD_SET(listen_socket, &read_fds);
 
-  // }
-  
-  return 0;
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            FD_SET(client_sockets[i], &read_fds);
+        }
+
+        select(FD_SETSIZE, &read_fds, NULL, NULL, NULL);
+
+        // Check for new client connections
+        if (FD_ISSET(listen_socket, &read_fds)) {
+            int new_client_socket = accept(listen_socket, NULL, NULL);
+            if (new_client_socket != -1 && client_count < MAX_PLAYERS) {
+                client_sockets[client_count++] = new_client_socket;
+                printf("New client connected.\n");
+
+
+                // send question to client
+                char* question = questions[0].question;
+                char* optionA = questions[0].optionA;
+                char* optionB = questions[0].optionB;
+                char* optionC = questions[0].optionC;
+                char* optionD = questions[0].optionD;
+
+                char message[BUFFER_SIZE];
+                
+
+                if (client_count == MAX_PLAYERS) {
+                    printf("Beginning...\n");
+                    //sprintf(message, "Game starting...\n");
+                    char str1[20] = "Game starting...\n";
+                    strcpy(message, str1);
+                    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+                    sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
+                    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+                }
+            
+
+                
+                
+
+            }
+        }
+
+        // Check for data from existing clients
+        for (int i = 0; i < client_count; i++) {
+            if (FD_ISSET(client_sockets[i], &read_fds)) {
+                int client_new_score;
+                read(client_sockets[i], &client_new_score, sizeof(int));
+                // Process the score if needed
+            }
+        }
+    }
+
+    // Close client sockets and perform cleanup if needed
+    for (int i = 0; i < client_count; i++) {
+        close(client_sockets[i]);
+    }
+
+    return 0;
 }
+
+
