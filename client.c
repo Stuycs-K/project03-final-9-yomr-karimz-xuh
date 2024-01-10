@@ -9,7 +9,7 @@ void game_end(int signum) {
 long getTimeDifference(struct timeval start, struct timeval end) {
   return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 }
-NOTE: absent from class
+
 // function to check if the player's answer is correct and award points
 int pointSystem(struct questionAndOptions* question, char* playerAnswer, struct timeval startTime) {
   struct timeval endTime;
