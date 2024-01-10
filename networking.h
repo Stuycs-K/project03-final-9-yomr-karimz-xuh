@@ -13,10 +13,15 @@
 #include <time.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <ctype.h>
+
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
 #define PORT "19230"
+#define MAX_PLAYERS 1
 #define BUFFER_SIZE 1024
 void err(int i, char * message);
 int server_setup();

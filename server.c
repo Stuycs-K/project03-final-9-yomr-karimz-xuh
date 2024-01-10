@@ -6,12 +6,6 @@ void broadcast_message(int* client_sockets, int num_clients, char* message) {
     }
 }
 
-// Function to send a question to all connected clients
-void send_question(int* client_sockets, int num_clients, char* question) {
-    for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], question, strlen(question) + 1);
-    }
-}
 
 struct questionAndOptions* read_csv() {
 
@@ -133,71 +127,80 @@ struct questionAndOptions* read_csv() {
     return questions;
 }
 
-void subserver_logic(int * client_sockets, int client_count){
-    struct questionAndOptions* questions = read_csv();
-    int client_new_score;
 
-    while (1) {
-        fd_set descriptors;
-        FD_ZERO(&descriptors);
-
-        int max_descriptor = -1;
-        for (int i = 0; i < client_count; i++) {
-            int client_socket = client_sockets[i];
-            FD_SET(client_socket, &descriptors);
-            if (client_socket > max_descriptor) {
-                max_descriptor = client_socket;
-            }
-        }
-
-        select(max_descriptor + 1, &descriptors, NULL, NULL, NULL);
-        
-        for (int i = 0; i < client_count; i++) {
-            if (FD_ISSET(client_sockets[i], &descriptors)) {
-                // score processing is handled on client side
-                read(client_sockets[i], client_new_score, sizeof(int));
-            }
-        }
-    }
-}
 
 
 int main(int argc, char *argv[] ) {
 
-  struct questionAndOptions* questions = read_csv();
+    struct questionAndOptions* questions = read_csv();
 
 
-  int client_socket = server_setup(); 
+    int listen_socket = server_setup(); 
 
 
-  while (1) {
-    int subserver_socket = server_tcp_handshake(client_socket);
+    int client_sockets[MAX_PLAYERS];
+    int client_count = 0;
 
-    int process = fork();
-    if (process < 0) {
-      perror("Forking error\n");
-      exit(1);
+
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+
+    while (1) {
+        FD_SET(listen_socket, &read_fds);
+
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            FD_SET(client_sockets[i], &read_fds);
+        }
+
+        select(FD_SETSIZE, &read_fds, NULL, NULL, NULL);
+
+        // Check for new client connections
+        if (FD_ISSET(listen_socket, &read_fds)) {
+            int new_client_socket = accept(listen_socket, NULL, NULL);
+            if (new_client_socket != -1 && client_count < MAX_PLAYERS) {
+                client_sockets[client_count++] = new_client_socket;
+                printf("New client connected.\n");
+
+
+                // send question to client
+                char* question = questions[0].question;
+                char* optionA = questions[0].optionA;
+                char* optionB = questions[0].optionB;
+                char* optionC = questions[0].optionC;
+                char* optionD = questions[0].optionD;
+
+                char message[BUFFER_SIZE];
+                sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
+
+                if (client_count == MAX_PLAYERS) {
+                    printf("Beginning...\n");
+                    broadcast_message(client_sockets, client_count, "Game starting...\n");
+                    broadcast_message(client_sockets, client_count, message);
+                }
+            
+
+                
+                
+
+            }
+        }
+
+        // Check for data from existing clients
+        for (int i = 0; i < client_count; i++) {
+            if (FD_ISSET(client_sockets[i], &read_fds)) {
+                int client_new_score;
+                read(client_sockets[i], &client_new_score, sizeof(int));
+                // Process the score if needed
+            }
+        }
     }
 
-
-    else if (process == 0) {
-      
- 
-      
-      printf("[server] connected to client\n");
-      subserver_logic(subserver_socket, questions);
-      exit(0);
-
+    // Close client sockets and perform cleanup if needed
+    for (int i = 0; i < client_count; i++) {
+        close(client_sockets[i]);
     }
 
-    else {
-
-      close(subserver_socket);
-    }
-    
-    
-
-  }
-  
-  return 0;
+    return 0;
 }
+
+
