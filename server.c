@@ -10,7 +10,15 @@ void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER
 
 void send_question(int* client_sockets, int num_clients, struct questionAndOptions question, int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], question, sizeBuff);
+        printf("sending question to client %d\n", i);
+        printf("question: %s\n", question.question);
+        printf("optionA: %s\n", question.optionA);
+        printf("optionB: %s\n", question.optionB);
+        printf("optionC: %s\n", question.optionC);
+        printf("optionD: %s\n", question.optionD);
+        printf("correctAnswer: %s\n", question.correctAnswer);
+
+        write(client_sockets[i], &question, sizeBuff);
         //printf("client socket: %d\n", client_sockets[i]);
         //printf("\n");
     }
@@ -86,25 +94,17 @@ struct questionAndOptions* read_csv() {
             }
             //printf("substring: %s\n", substring);
             if (currentColumn == 0) {
-                questions[currentLine].question = strdup(substring);
-            }
-            else if (currentColumn == 1) {
-                questions[currentLine].optionA = strdup(substring);
-            }
-            else if (currentColumn == 2) {
-                questions[currentLine].optionB = strdup(substring);
-            }
-            else if (currentColumn == 3) {
-                questions[currentLine].optionC = strdup(substring);
-            }
-            else if (currentColumn == 4) {
-                questions[currentLine].optionD = strdup(substring);
-            }
-            else if (currentColumn == 5) {
-                questions[currentLine].correctAnswer = strdup(substring);
-            }
-            else {
-                perror("error in filling entries\n");
+                strcpy(questions[currentLine].question, substring);
+            } else if (currentColumn == 1) {
+                strcpy(questions[currentLine].optionA, substring);
+            } else if (currentColumn == 2) {
+                strcpy(questions[currentLine].optionB, substring);
+            } else if (currentColumn == 3) {
+                strcpy(questions[currentLine].optionC, substring);
+            } else if (currentColumn == 4) {
+                strcpy(questions[currentLine].optionD, substring);
+            } else if (currentColumn == 5) {
+                strcpy(questions[currentLine].correctAnswer, substring);
             }
             currentColumn++;
         }
@@ -189,7 +189,7 @@ int main(int argc, char *argv[] ) {
                     char str1[20] = "Game starting...\n";
                     strcpy(message, str1);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
-                    send-question(client_sockets, client_count, questions[0], sizeof(struct questionAndOptions));
+                    send_question(client_sockets, client_count, questions[0], sizeof(struct questionAndOptions));
                     printf("Sent all options\n");
                 }
             

@@ -59,6 +59,7 @@ void clientLogic(int server_socket){
 
     //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
+    struct questionAndOptions question_buffer[BUFFER_SIZE];
     char correct_answer_buffer[BUFFER_SIZE];
     char optionA[BUFFER_SIZE];
     char optionB[BUFFER_SIZE];
@@ -86,20 +87,24 @@ void clientLogic(int server_socket){
         printf("Here!\n");
 
         // read question
-        bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
+        bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
         if (bytes_read <= 0) {
             printf("server disconnected for question string\n");
             exit(0);
         }
-        
-        
 
-        printf("Question %d: %s\n", current_question_number+1, response_buffer); // print question to client
+        printf("question from server: %sbruh\n", question_buffer->question);
+
+        printf("bytes read for question buffer %d\n", bytes_read);
+        sprintf(response_buffer, "Question %d: %s\nA: %s\nB: %s\nC: %s\nD: %s\n", current_question_number+1, question_buffer->question, question_buffer->optionA, question_buffer->optionB, question_buffer->optionC, question_buffer->optionD);
+
+        
+        printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
-                printf("changing case\n");
+                //printf("changing case\n");
                 response_buffer[i] = response_buffer[i] - 32;
             }
 
@@ -111,14 +116,17 @@ void clientLogic(int server_socket){
         struct timeval start_time;
         gettimeofday(&start_time, NULL);
 
+        strcpy(correct_answer_buffer, question_buffer->correctAnswer);
+        strcpy(optionA, question_buffer->optionA);
+        strcpy(optionB, question_buffer->optionB);
+        strcpy(optionC, question_buffer->optionC);
+        strcpy(optionD, question_buffer->optionD);
         
-
-        
-
+        // calculate points and add to score
         int add_points = pointSystem(correct_answer_buffer, response_buffer, start_time, optionA, optionB, optionC, optionD);
         score += add_points;
 
-        write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
+        //write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
 
         current_question_number++;
     }
