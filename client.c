@@ -83,7 +83,7 @@ void clientLogic(int server_socket){
   // once server sends the first question, loop
     while (1) {
         int i = 0;
-        //printf("Here!\n");
+        printf("Here!\n");
 
         // read question
         bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
@@ -91,15 +91,15 @@ void clientLogic(int server_socket){
             printf("server disconnected for question string\n");
             exit(0);
         }
-        // handle game ending signal
-
-        signal(SIGUSR1, game_end);
+        
+        
 
         printf("Question %d: %s\n", current_question_number+1, response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
+                printf("changing case\n");
                 response_buffer[i] = response_buffer[i] - 32;
             }
 
@@ -107,70 +107,6 @@ void clientLogic(int server_socket){
         }
 
         printf("Your answer: %s\n", response_buffer); // print client response to client
-
-
-        bytes_read = read(server_socket, correct_answer_buffer, sizeof(correct_answer_buffer));
-        if (bytes_read <= 0) {
-            printf("server disconnected for question\n");
-            exit(0);
-        }
-        // remove newline from correct answer
-        i = 0;
-        while (correct_answer_buffer[i]) {
-            if (correct_answer_buffer[i] == '\n') correct_answer_buffer[i] = '\0';
-            i++;
-        }
-
-        
-
-        printf("Got to A\n");
-        bytes_read = read(server_socket, optionA, sizeof(optionA));
-        if (bytes_read <= 0) {
-            printf("server disconnected for optionA\n");
-            exit(0);
-        }
-        i = 0;
-        while (optionA[i]) {
-            if (optionA[i] == '\n') optionA[i] = '\0';
-            i++;
-        }
-        
-
-        printf("Got to B\n");
-        bytes_read = read(server_socket, optionB, sizeof(optionB));
-        if (bytes_read <= 0) {
-            printf("server disconnected for optionB\n");
-            exit(0);
-        }
-        i = 0;
-        while (optionB[i]) {
-            if (optionB[i] == '\n') optionB[i] = '\0';
-            i++;
-        }
-        bytes_read = read(server_socket, optionC, sizeof(optionC));
-        if (bytes_read <= 0) {
-            printf("server disconnected for optionC\n");
-            exit(0);
-        }
-        i = 0;
-        while (optionC[i]) {
-            if (optionC[i] == '\n') optionC[i] = '\0';
-            i++;
-        }
-        printf("Got to D\n");
-        bytes_read = read(server_socket, optionD, sizeof(optionD));
-        if (bytes_read <= 0) {
-            printf("server disconnected for optionD\n");
-            exit(0);
-        }
-        i = 0;
-        while (optionD[i]) {
-            if (optionD[i] == '\n') optionD[i] = '\0';
-            i++;
-        }
-        
-
-        
 
         struct timeval start_time;
         gettimeofday(&start_time, NULL);
