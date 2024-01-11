@@ -23,6 +23,10 @@ worked on game end system with displaying scores, sending points to server
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
 
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -39,6 +43,10 @@ refactored score system and implemented into client
 
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
+
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
 
 ## Zidane Karim
 
@@ -71,3 +79,7 @@ worked on moving subserver code to main; current error is that text will not sen
 
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
+
+### 2024-01-10 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
