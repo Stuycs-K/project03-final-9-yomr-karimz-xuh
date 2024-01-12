@@ -147,6 +147,8 @@ void clientLogic(int server_socket){
         int add_points = pointSystem(correct_answer_buffer, response_buffer, start_time, optionA, optionB, optionC, optionD);
         score += add_points;
 
+        int goNext = 1;
+        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
         //write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
 
         current_question_number++;

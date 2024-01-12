@@ -153,6 +153,11 @@ int main(int argc, char *argv[] ) {
 
     int listen_socket = server_setup(); 
 
+    int num_questions = 0;
+    while (questions[num_questions].question[0] != '\0') {
+        num_questions++;
+    }
+
 
     int client_sockets[MAX_PLAYERS];
     int client_count = 0;
@@ -160,8 +165,13 @@ int main(int argc, char *argv[] ) {
 
     fd_set read_fds;
     FD_ZERO(&read_fds);
-
-    while (1) {
+    int questionIndex = 0;
+    int start = 0; 
+    while (questionIndex < num_questions) {
+        
+        printf("Out of the for loop\n");
+        int goNext = 0;
+        
         FD_SET(listen_socket, &read_fds);
 
         for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -172,6 +182,7 @@ int main(int argc, char *argv[] ) {
 
         // Check for new client connections
         if (FD_ISSET(listen_socket, &read_fds)) {
+            printf("got here now\n");
             int new_client_socket = accept(listen_socket, NULL, NULL);
             if (new_client_socket != -1 && client_count < MAX_PLAYERS) {
                 client_sockets[client_count++] = new_client_socket;
@@ -179,23 +190,34 @@ int main(int argc, char *argv[] ) {
 
 
                 // send question to client
-                char* question = questions[0].question;
-                char* optionA = questions[0].optionA;
-                char* optionB = questions[0].optionB;
-                char* optionC = questions[0].optionC;
-                char* optionD = questions[0].optionD;
+                char* question = questions[questionIndex].question;
+                char* optionA = questions[questionIndex].optionA;
+                char* optionB = questions[questionIndex].optionB;
+                char* optionC = questions[questionIndex].optionC;
+                char* optionD = questions[questionIndex].optionD;
 
                 char message[BUFFER_SIZE];
                 
 
-                if (client_count == MAX_PLAYERS) {
-                    printf("Beginning...\n");
+                if (client_count == MAX_PLAYERS && start == 0) {
+                    printf("Beginning in server...\n");
                     //sprintf(message, "Game starting...\n");
                     char str1[20] = "Game starting...\n";
                     strcpy(message, str1);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
-                    send_question(client_sockets, client_count, questions[0], sizeof(questions[0]));
+                    send_question(client_sockets, client_count, questions[0], sizeof(questions[questionIndex]));
+                    start = 1;
                     //printf("Sent all options\n");
+                }
+
+                if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
+                    questionIndex++;
+                    printf("Back again!\n");
+                    //printf("Sending question to client\n");
+                    send_question(client_sockets, client_count, questions[questionIndex], sizeof(questions[questionIndex]));
+
+                    printf("Sent all options\n");
+                    goNext = 0;
                 }
             
 
@@ -205,14 +227,25 @@ int main(int argc, char *argv[] ) {
             }
         }
 
-        // Check for data from existing clients
-        for (int i = 0; i < client_count; i++) {
+        // Every client socket sends an int, goNext. If goNext == 1 in EVERY CLIENT, then send the next question to all clients
+        for (int i = 0; i < MAX_PLAYERS; i++) {
             if (FD_ISSET(client_sockets[i], &read_fds)) {
-                int client_new_score;
-                read(client_sockets[i], &client_new_score, sizeof(int));
-                // Process the score if needed
+                printf("running read\n");
+                int clientGoNext;
+                read(client_sockets[i], &clientGoNext, sizeof(goNext));
+                if (clientGoNext == 1) {
+                    printf("Client %d is ready for next question\n", i);
+                    goNext = 1;
+                }
+                else {
+                    // break out of loop if one client is not ready
+                    goNext = 0;
+                    break;
+                }
             }
         }
+
+        
     }
 
     // Close client sockets and perform cleanup if needed
