@@ -89,3 +89,6 @@ fixed all existing errors by changing to struct send
 fixed comparison of answers by removing newline and carriages
 fixed hanging of reads
 working on sending multiple questions to client
+
+### 2024-01-11 - 11:00 pm 
+multiple questions working
