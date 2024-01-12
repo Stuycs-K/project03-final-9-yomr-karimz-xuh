@@ -1,10 +1,34 @@
 #include "networking.h"
 
-void broadcast_message(int* client_sockets, int num_clients, char* message, int sizeBuff) {
+void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER_SIZE], int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], message, sizeBuff);
+        printf("sizeBuff: %d\n", sizeBuff);
+        int bytes_sent = write(client_sockets[i], message, BUFFER_SIZE);
+        if (bytes_sent < 0) {
+            perror("write error\n");
+        }
+
+        //printf("client socket: %d\n", client_sockets[i]);
+        //printf("\n");
     }
 }
+
+void send_question(int* client_sockets, int num_clients, struct questionAndOptions question, int sizeBuff) {
+    for (int i = 0; i < num_clients; i++) {
+        printf("sending question to client %d\n", i);
+        printf("question: %s\n", question.question);
+        printf("optionA: %s\n", question.optionA);
+        printf("optionB: %s\n", question.optionB);
+        printf("optionC: %s\n", question.optionC);
+        printf("optionD: %s\n", question.optionD);
+        printf("correctAnswer: %s\n", question.correctAnswer);
+
+        write(client_sockets[i], &question, sizeBuff);
+        //printf("client socket: %d\n", client_sockets[i]);
+        //printf("\n");
+    }
+}
+
 
 
 struct questionAndOptions* read_csv() {
@@ -75,25 +99,17 @@ struct questionAndOptions* read_csv() {
             }
             //printf("substring: %s\n", substring);
             if (currentColumn == 0) {
-                questions[currentLine].question = strdup(substring);
-            }
-            else if (currentColumn == 1) {
-                questions[currentLine].optionA = strdup(substring);
-            }
-            else if (currentColumn == 2) {
-                questions[currentLine].optionB = strdup(substring);
-            }
-            else if (currentColumn == 3) {
-                questions[currentLine].optionC = strdup(substring);
-            }
-            else if (currentColumn == 4) {
-                questions[currentLine].optionD = strdup(substring);
-            }
-            else if (currentColumn == 5) {
-                questions[currentLine].correctAnswer = strdup(substring);
-            }
-            else {
-                perror("error in filling entries\n");
+                strcpy(questions[currentLine].question, substring);
+            } else if (currentColumn == 1) {
+                strcpy(questions[currentLine].optionA, substring);
+            } else if (currentColumn == 2) {
+                strcpy(questions[currentLine].optionB, substring);
+            } else if (currentColumn == 3) {
+                strcpy(questions[currentLine].optionC, substring);
+            } else if (currentColumn == 4) {
+                strcpy(questions[currentLine].optionD, substring);
+            } else if (currentColumn == 5) {
+                strcpy(questions[currentLine].correctAnswer, substring);
             }
             currentColumn++;
         }
@@ -134,22 +150,34 @@ int main(int argc, char *argv[] ) {
 
     struct questionAndOptions* questions = read_csv();
 
-
+    int goNext = 1;
     int listen_socket = server_setup(); 
 
+    int num_questions = 0;
+    while (questions[num_questions].question[0] != '\0') {
+        num_questions++;
+    }
 
-    int client_sockets[MAX_PLAYERS];
+
+    int client_sockets[MAX_PLAYERS] = {0};
     int client_count = 0;
 
 
     fd_set read_fds;
     FD_ZERO(&read_fds);
-
-    while (1) {
+    int questionIndex = 0;
+    int start = 0; 
+    while (questionIndex < num_questions) {
+        
+        //printf("Out of the for loop\n");
+        
+        
         FD_SET(listen_socket, &read_fds);
 
         for (int i = 0; i < MAX_PLAYERS; i++) {
-            FD_SET(client_sockets[i], &read_fds);
+            if (client_sockets[i] > 0) {  // Check if the socket is valid before adding to read_fds.
+                FD_SET(client_sockets[i], &read_fds);
+            }
         }
 
         select(FD_SETSIZE, &read_fds, NULL, NULL, NULL);
@@ -163,48 +191,81 @@ int main(int argc, char *argv[] ) {
 
 
                 // send question to client
-                char* question = questions[0].question;
-                char* optionA = questions[0].optionA;
-                char* optionB = questions[0].optionB;
-                char* optionC = questions[0].optionC;
-                char* optionD = questions[0].optionD;
+                char* question = questions[questionIndex].question;
+                char* optionA = questions[questionIndex].optionA;
+                char* optionB = questions[questionIndex].optionB;
+                char* optionC = questions[questionIndex].optionC;
+                char* optionD = questions[questionIndex].optionD;
 
                 char message[BUFFER_SIZE];
                 
 
-                if (client_count == MAX_PLAYERS) {
-                    printf("Beginning...\n");
+                if (client_count == MAX_PLAYERS && start == 0) {
+                    printf("Beginning in server...\n");
                     //sprintf(message, "Game starting...\n");
                     char str1[20] = "Game starting...\n";
                     strcpy(message, str1);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
-                    sprintf(message, "%s\nA. %s\nB. %s\nC. %s\nD. %s\n", question, optionA, optionB, optionC, optionD);
-                    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+                    send_question(client_sockets, client_count, questions[0], sizeof(questions[questionIndex]));
+                    start = 1;
+                    //printf("Sent all options\n");
                 }
-            
+        
 
-                
+            }
+        }
+
+        // Every client socket sends an int, goNext. If goNext == 1 in EVERY CLIENT, then send the next question to all clients
+        
+        int readySockets[MAX_PLAYERS];
+
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (FD_ISSET(client_sockets[i], &read_fds)) {
+                printf("running read\n");
+                int clientGoNext = 0;
+                read(client_sockets[i], &clientGoNext, sizeof(goNext));
+                printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
+                if (clientGoNext != 1) {
+                    goNext = 0;
+                }
+                if (clientGoNext == 1) {
+                    readySockets[i] = 1;
+                }
                 
 
             }
         }
 
-        // Check for data from existing clients
-        for (int i = 0; i < client_count; i++) {
-            if (FD_ISSET(client_sockets[i], &read_fds)) {
-                int client_new_score;
-                read(client_sockets[i], &client_new_score, sizeof(int));
-                // Process the score if needed
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (readySockets[i] != 1) {
+                goNext = 0;
+                break;
+            }
+            if (readySockets[i] == 1) {
+                goNext = 1;
+            }
+        }
+
+        if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
+            questionIndex++;
+            printf("Back again!\n");
+            //printf("Sending question to client\n");
+            send_question(client_sockets, client_count, questions[questionIndex], sizeof(questions[questionIndex]));
+
+
+            goNext = 0;
+            for (int i = 0; i < MAX_PLAYERS; i++) {
+                readySockets[i] = 0;
             }
         }
     }
-
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
         close(client_sockets[i]);
     }
 
     return 0;
+    
 }
 
 
