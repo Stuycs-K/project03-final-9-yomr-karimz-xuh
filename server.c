@@ -159,7 +159,7 @@ int main(int argc, char *argv[] ) {
     }
 
 
-    int client_sockets[MAX_PLAYERS];
+    int client_sockets[MAX_PLAYERS] = {0};
     int client_count = 0;
 
 
@@ -175,7 +175,9 @@ int main(int argc, char *argv[] ) {
         FD_SET(listen_socket, &read_fds);
 
         for (int i = 0; i < MAX_PLAYERS; i++) {
-            FD_SET(client_sockets[i], &read_fds);
+            if (client_sockets[i] > 0) {  // Check if the socket is valid before adding to read_fds.
+                FD_SET(client_sockets[i], &read_fds);
+            }
         }
 
         select(FD_SETSIZE, &read_fds, NULL, NULL, NULL);
