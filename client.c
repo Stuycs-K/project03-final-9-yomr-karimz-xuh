@@ -36,18 +36,44 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
         i++;
     }
 
-    if (strcmp(playerAnswer, "A") == 0) {
-        strcpy(playerAnswer, optionA);
+    int checkValid = 0;
+
+    while (checkValid == 0) {
+        if (strcmp(playerAnswer, "A") == 0) {
+            strcpy(playerAnswer, optionA);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "B") == 0) {
+            strcpy(playerAnswer, optionB);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "C") == 0) {
+            strcpy(playerAnswer, optionC);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "D") == 0) {
+            strcpy(playerAnswer, optionD);
+            checkValid = 1;
+        }
+        else {
+            printf("Invalid answer: please answer with A, B, C, or D: ");
+            fgets(playerAnswer, BUFFER_SIZE, stdin);
+            i = 0;
+            while (playerAnswer[i]) {
+                if (playerAnswer[i] == '\n' || playerAnswer[i] == '\r') {
+                    playerAnswer[i] = '\0';
+                }
+                if (playerAnswer[i] >= 'a' && playerAnswer[i] <= 'z') {
+                    //printf("changing case\n");
+                    playerAnswer[i] = playerAnswer[i] - 32;
+                }
+                i++;
+            }
+        }
+
     }
-    else if (strcmp(playerAnswer, "B") == 0) {
-        strcpy(playerAnswer, optionB);
-    }
-    else if (strcmp(playerAnswer, "C") == 0) {
-        strcpy(playerAnswer, optionC);
-    }
-    else if (strcmp(playerAnswer, "D") == 0) {
-        strcpy(playerAnswer, optionD);
-    }
+
+    
 
     printf("playerAnswer: %s\n", playerAnswer);
     printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
