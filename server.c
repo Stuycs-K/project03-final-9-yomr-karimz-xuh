@@ -150,7 +150,7 @@ int main(int argc, char *argv[] ) {
 
     struct questionAndOptions* questions = read_csv();
 
-
+    int goNext = 1;
     int listen_socket = server_setup(); 
 
     int num_questions = 0;
@@ -169,8 +169,8 @@ int main(int argc, char *argv[] ) {
     int start = 0; 
     while (questionIndex < num_questions) {
         
-        printf("Out of the for loop\n");
-        int goNext = 0;
+        //printf("Out of the for loop\n");
+        
         
         FD_SET(listen_socket, &read_fds);
 
@@ -182,7 +182,6 @@ int main(int argc, char *argv[] ) {
 
         // Check for new client connections
         if (FD_ISSET(listen_socket, &read_fds)) {
-            printf("got here now\n");
             int new_client_socket = accept(listen_socket, NULL, NULL);
             if (new_client_socket != -1 && client_count < MAX_PLAYERS) {
                 client_sockets[client_count++] = new_client_socket;
@@ -209,51 +208,62 @@ int main(int argc, char *argv[] ) {
                     start = 1;
                     //printf("Sent all options\n");
                 }
-
-                if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
-                    questionIndex++;
-                    printf("Back again!\n");
-                    //printf("Sending question to client\n");
-                    send_question(client_sockets, client_count, questions[questionIndex], sizeof(questions[questionIndex]));
-
-                    printf("Sent all options\n");
-                    goNext = 0;
-                }
-            
-
-                
-                
+        
 
             }
         }
 
         // Every client socket sends an int, goNext. If goNext == 1 in EVERY CLIENT, then send the next question to all clients
+        
+        int readySockets[MAX_PLAYERS];
+
         for (int i = 0; i < MAX_PLAYERS; i++) {
             if (FD_ISSET(client_sockets[i], &read_fds)) {
                 printf("running read\n");
-                int clientGoNext;
+                int clientGoNext = 0;
                 read(client_sockets[i], &clientGoNext, sizeof(goNext));
-                if (clientGoNext == 1) {
-                    printf("Client %d is ready for next question\n", i);
-                    goNext = 1;
-                }
-                else {
-                    // break out of loop if one client is not ready
+                printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
+                if (clientGoNext != 1) {
                     goNext = 0;
-                    break;
                 }
+                if (clientGoNext == 1) {
+                    readySockets[i] = 1;
+                }
+                
+
             }
         }
 
-        
-    }
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (readySockets[i] != 1) {
+                goNext = 0;
+                break;
+            }
+            if (readySockets[i] == 1) {
+                goNext = 1;
+            }
+        }
 
+        if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
+            questionIndex++;
+            printf("Back again!\n");
+            //printf("Sending question to client\n");
+            send_question(client_sockets, client_count, questions[questionIndex], sizeof(questions[questionIndex]));
+
+
+            goNext = 0;
+            for (int i = 0; i < MAX_PLAYERS; i++) {
+                readySockets[i] = 0;
+            }
+        }
+    }
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
         close(client_sockets[i]);
     }
 
     return 0;
+    
 }
 
 

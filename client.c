@@ -78,6 +78,8 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
 
 void clientLogic(int server_socket){
 
+
+
     //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
     struct questionAndOptions question_buffer[BUFFER_SIZE];
@@ -99,13 +101,17 @@ void clientLogic(int server_socket){
     }
 
     printf("%s\n", response_buffer);
-
-
+    int goNext = 0;
+    int begin = 0;
     //printf("Here1!\n");
   // once server sends the first question, loop
     while (1) {
         int i = 0;
-        printf("Here!\n");
+        
+
+       
+
+        
 
         // read question
         bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
@@ -113,7 +119,9 @@ void clientLogic(int server_socket){
             printf("server disconnected for question string\n");
             exit(0);
         }
-
+        goNext = 0;
+        write(server_socket, &goNext, sizeof(goNext)); // write to server to PAUSE to next question
+        
         printf("question from server: %sbruh\n", question_buffer->question);
 
         printf("bytes read for question buffer %d\n", bytes_read);
@@ -122,6 +130,8 @@ void clientLogic(int server_socket){
         
         printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
+        goNext = 1;
+        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
@@ -147,8 +157,8 @@ void clientLogic(int server_socket){
         int add_points = pointSystem(correct_answer_buffer, response_buffer, start_time, optionA, optionB, optionC, optionD);
         score += add_points;
 
-        int goNext = 1;
-        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+        goNext = 1;
+        
         //write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
 
         current_question_number++;
