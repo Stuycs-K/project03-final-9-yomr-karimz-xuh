@@ -18,6 +18,24 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
     struct timeval endTime;
     gettimeofday(&endTime, NULL);
 
+    //printf("correct_answer_buffer: %s\n", correct_answer_buffer);
+
+    // remove newline from playerAnswer
+    int i = 0;
+    while (playerAnswer[i]) {
+        if (playerAnswer[i] == '\n' || playerAnswer[i] == '\r') {
+            playerAnswer[i] = '\0';
+        }
+        i++;
+    }
+
+    while (correct_answer_buffer[i]) {
+        if (correct_answer_buffer[i] == '\n' || correct_answer_buffer[i] == '\r') {
+            correct_answer_buffer[i] = '\0';
+        }
+        i++;
+    }
+
     if (strcmp(playerAnswer, "A") == 0) {
         strcpy(playerAnswer, optionA);
     }
@@ -30,6 +48,9 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
     else if (strcmp(playerAnswer, "D") == 0) {
         strcpy(playerAnswer, optionD);
     }
+
+    printf("playerAnswer: %s\n", playerAnswer);
+    printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
 
     // Check if the player's answer is correct
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
