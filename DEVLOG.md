@@ -27,6 +27,9 @@ bug fixing for client.c broadcast message and beyond (pair programming)
 bug fixing for client.c for broadcast message and 
 now making so we send structs over sockets (pair programming)
 
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -47,6 +50,9 @@ bug fixing for client.c broadcast message and beyond (pair programming)
 ### 2024-01-11 - 2:40 pm 
 bug fixing for client.c for broadcast message and 
 now making so we send structs over sockets (pair programming)
+
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
 
 ## Zidane Karim
 
@@ -92,3 +98,6 @@ working on sending multiple questions to client
 
 ### 2024-01-11 - 11:00 pm 
 multiple questions working
+
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
