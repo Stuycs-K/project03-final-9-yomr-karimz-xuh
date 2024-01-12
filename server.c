@@ -223,13 +223,22 @@ int main(int argc, char *argv[] ) {
             if (FD_ISSET(client_sockets[i], &read_fds)) {
                 printf("running read\n");
                 int clientGoNext = 0;
-                read(client_sockets[i], &clientGoNext, sizeof(goNext));
-                printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
-                if (clientGoNext != 1) {
-                    goNext = 0;
-                }
-                if (clientGoNext == 1) {
-                    readySockets[i] = 1;
+                int bytes_client = read(client_sockets[i], &clientGoNext, sizeof(goNext));
+                if (bytes_client <= 0) {
+                    // Remove the client file descriptor
+                    printf("Error or connection closed for client %d with socket %d\n", i, client_sockets[i]);
+                    close(client_sockets[i]);
+                    client_sockets[i] = 0;  // Set to 0 to mark it as invalid
+                    readySockets[i] = 1; // so other players can continue
+                    } 
+                else {
+                    printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
+                    if (clientGoNext != 1) {
+                        goNext = 0;
+                    }
+                    if (clientGoNext == 1) {
+                        readySockets[i] = 1;
+                    }
                 }
                 
 
