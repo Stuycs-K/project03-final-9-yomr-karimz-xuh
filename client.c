@@ -108,6 +108,7 @@ void clientLogic(int server_socket){
 
     //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
+    char name[BUFFER_SIZE];
     struct questionAndOptions question_buffer[BUFFER_SIZE];
     char correct_answer_buffer[BUFFER_SIZE];
     char optionA[BUFFER_SIZE];
@@ -118,6 +119,9 @@ void clientLogic(int server_socket){
 
     int bytes_read;
     int current_question_number = 0;
+
+    printf("What is your name?:  ");
+    fgets(name, BUFFER_SIZE, stdin);
 
     // wait for game to start, block until server sends a question
     bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
@@ -133,12 +137,6 @@ void clientLogic(int server_socket){
   // once server sends the first question, loop
     while (1) {
         int i = 0;
-        
-
-       
-
-        
-
         // read question
         bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
         if (bytes_read <= 0) {
