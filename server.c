@@ -2,7 +2,12 @@
 
 void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER_SIZE], int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        write(client_sockets[i], message, sizeBuff);
+        printf("sizeBuff: %d\n", sizeBuff);
+        int bytes_sent = write(client_sockets[i], message, BUFFER_SIZE);
+        if (bytes_sent < 0) {
+            perror("write error\n");
+        }
+
         //printf("client socket: %d\n", client_sockets[i]);
         //printf("\n");
     }
@@ -189,8 +194,8 @@ int main(int argc, char *argv[] ) {
                     char str1[20] = "Game starting...\n";
                     strcpy(message, str1);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
-                    send_question(client_sockets, client_count, questions[0], sizeof(struct questionAndOptions));
-                    printf("Sent all options\n");
+                    send_question(client_sockets, client_count, questions[0], sizeof(questions[0]));
+                    //printf("Sent all options\n");
                 }
             
 
