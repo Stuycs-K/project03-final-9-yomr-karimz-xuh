@@ -75,8 +75,8 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
 
     
 
-    printf("playerAnswer: %s\n", playerAnswer);
-    printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
+    //printf("playerAnswer: %s\n", playerAnswer);
+    //printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
 
     // Check if the player's answer is correct
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
@@ -124,6 +124,9 @@ void clientLogic(int server_socket){
 
     printf("What is your name?:  ");
     fgets(name, BUFFER_SIZE, stdin);
+    struct player player;
+    strcpy(player.name, name);
+    player.score = score;
 
     // wait for game to start, block until server sends a question
     bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
@@ -138,7 +141,7 @@ void clientLogic(int server_socket){
         exit(0);
     }
 
-    printf("number of questions: %d\n", max_questions);
+    //printf("number of questions: %d\n", max_questions);
 
 
     printf("%s\n", response_buffer);
@@ -157,16 +160,15 @@ void clientLogic(int server_socket){
         goNext = 0;
         write(server_socket, &goNext, sizeof(goNext)); // write to server to PAUSE to next question
         
-        printf("question from server: %sbruh\n", question_buffer->question);
+        //printf("question from server: %sbruh\n", question_buffer->question);
 
-        printf("bytes read for question buffer %d\n", bytes_read);
+        //printf("bytes read for question buffer %d\n", bytes_read);
         sprintf(response_buffer, "Question %d: %s\nA: %s\nB: %s\nC: %s\nD: %s\n", current_question_number+1, question_buffer->question, question_buffer->optionA, question_buffer->optionB, question_buffer->optionC, question_buffer->optionD);
 
         
         printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
-        goNext = 1;
-        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
@@ -193,8 +195,8 @@ void clientLogic(int server_socket){
         score += add_points;
 
         goNext = 1;
-        
-        //write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
+        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+
 
         current_question_number++;
     }
@@ -205,8 +207,24 @@ void clientLogic(int server_socket){
     printf("Your final score is: %d\n", score);
     printf("Thanks for playing!\n");
 
-    // write the client's total score back to the server
-    write(server_socket, &score, sizeof(score));
+    // write the player struct to the server
+    
+
+    bytes_read = write(server_socket, &player, sizeof(player));
+    if (bytes_read <= 0) {
+        printf("server disconnected for final score\n");
+        exit(0);
+    }
+    printf("sent player struct to server, with %d bytes read\n", bytes_read);
+
+    // read the winner from the server
+    char winner[BUFFER_SIZE];
+    bytes_read = read(server_socket, winner, BUFFER_SIZE);
+    if (bytes_read <= 0) {
+        printf("server disconnected for winner\n");
+        exit(0);
+    }
+    printf("%s\n", winner);
 
     close(server_socket);
 }

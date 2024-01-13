@@ -21,7 +21,7 @@
 #ifndef NETWORKING_H
 #define NETWORKING_H
 #define PORT "19230"
-#define MAX_PLAYERS 1
+#define MAX_PLAYERS 2
 #define BUFFER_SIZE 1024
 void err(int i, char * message);
 int server_setup();
@@ -37,5 +37,9 @@ struct questionAndOptions {
     char correctAnswer[BUFFER_SIZE];
 };
 
+struct player {
+    char name[BUFFER_SIZE];
+    int score;
+};
 
 #endif

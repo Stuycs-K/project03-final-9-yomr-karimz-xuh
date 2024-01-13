@@ -197,7 +197,8 @@ int main(int argc, char *argv[] ) {
     // convert string to int
 
 
-
+    struct player players[MAX_PLAYERS];
+    int scores[MAX_PLAYERS];
 
     int client_sockets[MAX_PLAYERS] = {0};
     int client_count = 0;
@@ -207,7 +208,7 @@ int main(int argc, char *argv[] ) {
     FD_ZERO(&read_fds);
     int questionIndex = 0;
     int start = 0; 
-    while (questionIndex < num_questions) {
+    while (questionIndex <= num_questions) {
         
         //printf("Out of the for loop\n");
         
@@ -249,7 +250,7 @@ int main(int argc, char *argv[] ) {
                     send_int(client_sockets, client_count, num_questions);
                     send_question(client_sockets, client_count, questions[0], sizeof(questions[questionIndex]));
                     
-                    
+                    questionIndex++;
                     start = 1;
                     //printf("Sent all options\n");
                 }
@@ -276,12 +277,16 @@ int main(int argc, char *argv[] ) {
                     } 
                 else {
                     printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
-                    if (clientGoNext != 1) {
+                    if (clientGoNext <= 0) {
                         goNext = 0;
                     }
-                    if (clientGoNext == 1) {
+                    else {
                         readySockets[i] = 1;
                     }
+
+
+
+                    
                 }
                 
 
@@ -299,9 +304,12 @@ int main(int argc, char *argv[] ) {
         }
 
         if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
-            questionIndex++;
-            printf("Back again!\n");
+            printf("Question %d\n", questionIndex);
             //printf("Sending question to client\n");
+            if (questionIndex == num_questions) {
+                printf("Game over!\n");
+                break;
+            }
             send_question(client_sockets, client_count, questions[questionIndex], sizeof(questions[questionIndex]));
 
 
@@ -309,16 +317,61 @@ int main(int argc, char *argv[] ) {
             for (int i = 0; i < MAX_PLAYERS; i++) {
                 readySockets[i] = 0;
             }
+            questionIndex++;
         }
     }
     
+    // make sure all clients are finished 
+
+
+
+
     printf("Out of the while loop\n");
-    int scores[MAX_PLAYERS];
+    
+
     for (int i = 0; i < MAX_PLAYERS; i++) {
-        read(client_sockets[i], &scores[i], sizeof(scores[i]));
-        printf("score for client %d: %d\n", i, scores[i]);
+        int bytes_read = read(client_sockets[i], &players[i], sizeof(players[i]));
+        if (bytes_read <= 0) {
+            printf("server disconnected for players\n");
+            exit(0);
+        }
+        // print every player's name and score
+        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
+
     }
 
+    
+
+    
+
+
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        scores[i] = players[i].score;
+        // remove newline from name
+        int walker = 0;
+        while (players[i].name[walker]) {
+            if (players[i].name[walker] == '\n' || players[i].name[walker] == '\r') {
+                players[i].name[walker] = '\0';
+            }
+            walker++;
+        }
+
+        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
+    }
+
+    int max = scores[0];
+    int maxIndex = 0;
+    for (int i = 1; i < MAX_PLAYERS; i++) {
+        if (scores[i] > max) {
+            max = scores[i];
+            maxIndex = i;
+        }
+    }
+
+    char message[BUFFER_SIZE];
+    sprintf(message, "The winner is %s with a score of %d!\n", players[maxIndex].name, max);
+    printf("%s", message);
+    broadcast_message(client_sockets, client_count, message, strlen(message)+1);
 
     
 
