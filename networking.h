@@ -37,5 +37,9 @@ struct questionAndOptions {
     char correctAnswer[BUFFER_SIZE];
 };
 
+struct player {
+    char name[BUFFER_SIZE];
+    int score;
+};
 
 #endif
