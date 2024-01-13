@@ -282,6 +282,17 @@ int main(int argc, char *argv[] ) {
                     }
                     else {
                         readySockets[i] = 1;
+                        int receivedNext = 100;
+                        write(client_sockets[i], &receivedNext, sizeof(receivedNext));
+
+                        int bytes_player = read(client_sockets[i], &players[i], sizeof(players[i]));
+                        if (bytes_player <= 0) {
+                            printf("server disconnected for players\n");
+                            exit(0);
+                        }
+                        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
+                        
+
                     }
 
 
@@ -327,23 +338,6 @@ int main(int argc, char *argv[] ) {
 
 
     printf("Out of the while loop\n");
-    
-
-    for (int i = 0; i < MAX_PLAYERS; i++) {
-        int bytes_read = read(client_sockets[i], &players[i], sizeof(players[i]));
-        if (bytes_read <= 0) {
-            printf("server disconnected for players\n");
-            exit(0);
-        }
-        // print every player's name and score
-        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
-
-    }
-
-    
-
-    
-
 
     for (int i = 0; i < MAX_PLAYERS; i++) {
         scores[i] = players[i].score;

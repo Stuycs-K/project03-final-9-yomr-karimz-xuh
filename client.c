@@ -196,7 +196,21 @@ void clientLogic(int server_socket){
 
         goNext = 1;
         write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+        player.score = score;
 
+        int receivedNext;
+        bytes_read = read(server_socket, &receivedNext, sizeof(receivedNext));
+        if (bytes_read <= 0) {
+            printf("server disconnected for before send player\n");
+            exit(0);
+        }
+        if (receivedNext == 100) {
+            printf("receivedNext: %d\n", receivedNext);
+            write(server_socket, &player, sizeof(player)); // write player struct to server
+
+
+
+        }
 
         current_question_number++;
     }
@@ -210,12 +224,12 @@ void clientLogic(int server_socket){
     // write the player struct to the server
     
 
-    bytes_read = write(server_socket, &player, sizeof(player));
-    if (bytes_read <= 0) {
-        printf("server disconnected for final score\n");
-        exit(0);
-    }
-    printf("sent player struct to server, with %d bytes read\n", bytes_read);
+    // bytes_read = write(server_socket, &player, sizeof(player));
+    // if (bytes_read <= 0) {
+    //     printf("server disconnected for final score\n");
+    //     exit(0);
+    // }
+    // printf("sent player struct to server, with %d bytes read\n", bytes_read);
 
     // read the winner from the server
     char winner[BUFFER_SIZE];
