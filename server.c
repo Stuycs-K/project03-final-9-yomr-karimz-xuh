@@ -174,15 +174,19 @@ int main(int argc, char *argv[] ) {
         int numItems = sscanf(question_count, "%d", &result);
 
         if (numItems == 1) {
-            printf("You entered: %d\n", result);
-            if (result > num_questions) {
-                
+            if (result < num_questions) {
+                printf("You entered: %d questions\n", result);
+                num_questions = result;   
+            }
+            else {
+                printf("You entered a number greater than the number of questions in the question bank, so your question count has automatically been set to the max\n");
+                printf("You entered: %d questions\n", num_questions);
             }
             break;
             // Now 'result' contains the converted integer value
         } else {
             if (question_count[0] == '\n') {
-                printf("You entered: %d\n", num_questions);
+                printf("You entered: %d questions\n", num_questions);
                 break;
             }
 
@@ -308,7 +312,14 @@ int main(int argc, char *argv[] ) {
         }
     }
     
-    // break the loop in client so they can send scores
+    printf("Out of the while loop\n");
+    int scores[MAX_PLAYERS];
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        read(client_sockets[i], &scores[i], sizeof(scores[i]));
+        printf("score for client %d: %d\n", i, scores[i]);
+    }
+
+
     
 
 

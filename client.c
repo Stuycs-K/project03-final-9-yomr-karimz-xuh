@@ -202,8 +202,13 @@ void clientLogic(int server_socket){
 
 
   // display final scores at the end
+    printf("Your final score is: %d\n", score);
+    printf("Thanks for playing!\n");
 
-  close(server_socket);
+    // write the client's total score back to the server
+    write(server_socket, &score, sizeof(score));
+
+    close(server_socket);
 }
 
 int main(int argc, char *argv[] ) {
