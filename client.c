@@ -120,6 +120,8 @@ void clientLogic(int server_socket){
     int bytes_read;
     int current_question_number = 0;
 
+    int max_questions = 0;
+
     printf("What is your name?:  ");
     fgets(name, BUFFER_SIZE, stdin);
 
@@ -130,12 +132,21 @@ void clientLogic(int server_socket){
         exit(0);
     }
 
+    bytes_read = read(server_socket, &max_questions, sizeof(max_questions));
+    if (bytes_read <= 0) {
+        printf("server disconnected max\n");
+        exit(0);
+    }
+
+    printf("number of questions: %d\n", max_questions);
+
+
     printf("%s\n", response_buffer);
     int goNext = 0;
     int begin = 0;
     //printf("Here1!\n");
   // once server sends the first question, loop
-    while (1) {
+    while (current_question_number < max_questions) {
         int i = 0;
         // read question
         bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));

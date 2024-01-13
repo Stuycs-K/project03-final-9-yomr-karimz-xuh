@@ -29,6 +29,16 @@ void send_question(int* client_sockets, int num_clients, struct questionAndOptio
     }
 }
 
+void send_int(int* client_sockets, int num_clients, int message) {
+    for (int i = 0; i < num_clients; i++) {
+        printf("sending int to client %d\n", i);
+        printf("int: %d\n", message);
+
+        write(client_sockets[i], &message, sizeof(message));
+        //printf("client socket: %d\n", client_sockets[i]);
+        //printf("\n");
+    }
+}
 
 
 struct questionAndOptions* read_csv() {
@@ -143,9 +153,6 @@ struct questionAndOptions* read_csv() {
     return questions;
 }
 
-
-
-
 int main(int argc, char *argv[] ) {
 
     struct questionAndOptions* questions = read_csv();
@@ -157,6 +164,35 @@ int main(int argc, char *argv[] ) {
     while (questions[num_questions].question[0] != '\0') {
         num_questions++;
     }
+
+    char question_count[BUFFER_SIZE];
+
+    printf("Enter number of questions: ");
+
+    while (fgets(question_count, BUFFER_SIZE, stdin) != NULL) {
+        int result;
+        int numItems = sscanf(question_count, "%d", &result);
+
+        if (numItems == 1) {
+            printf("You entered: %d\n", result);
+            if (result > num_questions) {
+                
+            }
+            break;
+            // Now 'result' contains the converted integer value
+        } else {
+            if (question_count[0] == '\n') {
+                printf("You entered: %d\n", num_questions);
+                break;
+            }
+
+            printf("Invalid input. Please enter a valid integer.\n");
+        }
+    }
+
+    // convert string to int
+
+
 
 
     int client_sockets[MAX_PLAYERS] = {0};
@@ -206,7 +242,10 @@ int main(int argc, char *argv[] ) {
                     char str1[20] = "Game starting...\n";
                     strcpy(message, str1);
                     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
+                    send_int(client_sockets, client_count, num_questions);
                     send_question(client_sockets, client_count, questions[0], sizeof(questions[questionIndex]));
+                    
+                    
                     start = 1;
                     //printf("Sent all options\n");
                 }
@@ -268,6 +307,13 @@ int main(int argc, char *argv[] ) {
             }
         }
     }
+    
+    // break the loop in client so they can send scores
+    
+
+
+
+    
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
         close(client_sockets[i]);
