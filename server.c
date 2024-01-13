@@ -2,7 +2,7 @@
 
 void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER_SIZE], int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        printf("sizeBuff: %d\n", sizeBuff);
+        //printf("sizeBuff: %d\n", sizeBuff);
         int bytes_sent = write(client_sockets[i], message, BUFFER_SIZE);
         if (bytes_sent < 0) {
             perror("write error\n");
@@ -15,13 +15,13 @@ void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER
 
 void send_question(int* client_sockets, int num_clients, struct questionAndOptions question, int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
-        printf("sending question to client %d\n", i);
-        printf("question: %s\n", question.question);
-        printf("optionA: %s\n", question.optionA);
-        printf("optionB: %s\n", question.optionB);
-        printf("optionC: %s\n", question.optionC);
-        printf("optionD: %s\n", question.optionD);
-        printf("correctAnswer: %s\n", question.correctAnswer);
+        // printf("sending question to client %d\n", i);
+        // printf("question: %s\n", question.question);
+        // printf("optionA: %s\n", question.optionA);
+        // printf("optionB: %s\n", question.optionB);
+        // printf("optionC: %s\n", question.optionC);
+        // printf("optionD: %s\n", question.optionD);
+        // printf("correctAnswer: %s\n", question.correctAnswer);
 
         write(client_sockets[i], &question, sizeBuff);
         //printf("client socket: %d\n", client_sockets[i]);
@@ -276,7 +276,7 @@ int main(int argc, char *argv[] ) {
                     readySockets[i] = 1; // so other players can continue
                     } 
                 else {
-                    printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
+                    //printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
                     if (clientGoNext <= 0) {
                         goNext = 0;
                     }
@@ -290,7 +290,7 @@ int main(int argc, char *argv[] ) {
                             printf("server disconnected for players\n");
                             exit(0);
                         }
-                        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
+                        //printf("Player %s has a score of %d\n", players[i].name, players[i].score);
                         
 
                     }
@@ -315,7 +315,7 @@ int main(int argc, char *argv[] ) {
         }
 
         if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
-            printf("Question %d\n", questionIndex);
+            //printf("Question %d\n", questionIndex);
             //printf("Sending question to client\n");
             if (questionIndex == num_questions) {
                 printf("Game over!\n");
@@ -337,7 +337,7 @@ int main(int argc, char *argv[] ) {
 
 
 
-    printf("Out of the while loop\n");
+    //printf("Out of the while loop\n");
 
     for (int i = 0; i < MAX_PLAYERS; i++) {
         scores[i] = players[i].score;
@@ -350,7 +350,7 @@ int main(int argc, char *argv[] ) {
             walker++;
         }
 
-        printf("Player %s has a score of %d\n", players[i].name, players[i].score);
+        //printf("Player %s has a score of %d\n", players[i].name, players[i].score);
     }
 
     int max = scores[0];
