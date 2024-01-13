@@ -205,7 +205,7 @@ void clientLogic(int server_socket){
             exit(0);
         }
         if (receivedNext == 100) {
-            printf("receivedNext: %d\n", receivedNext);
+            //printf("receivedNext: %d\n", receivedNext);
             write(server_socket, &player, sizeof(player)); // write player struct to server
 
 
