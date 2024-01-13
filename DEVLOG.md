@@ -101,3 +101,9 @@ multiple questions working
 
 ### 2024-01-12 - 2:50 pm
 bug fixing for select (pair programming) 
+
+### 2024-01-13 - 6:50 pm
+game end system added
+score system added
+game is (technically) complete, remaining bugs are solving for client DCs midway through the game, and more testing with greater # of questions
+and players 
