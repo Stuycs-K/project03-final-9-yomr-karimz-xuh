@@ -107,3 +107,7 @@ game end system added
 score system added
 game is (technically) complete, remaining bugs are solving for client DCs midway through the game, and more testing with greater # of questions
 and players 
+
+
+### 2024-01-14 - 1:00 am
+working category selection
