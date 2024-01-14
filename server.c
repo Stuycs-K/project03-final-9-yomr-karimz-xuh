@@ -41,10 +41,10 @@ void send_int(int* client_sockets, int num_clients, int message) {
 }
 
 
-struct questionAndOptions* read_csv() {
+struct questionAndOptions* read_csv(char category[BUFFER_SIZE]) {
 
     // num of lines
-    FILE* question_bank = fopen("./question_bank.csv", "r");
+    FILE* question_bank = fopen(category, "r");
     //printf("opened file\n");
     char buff[BUFFER_SIZE];
     //printf("created buff\n");
@@ -59,7 +59,7 @@ struct questionAndOptions* read_csv() {
     fclose(question_bank);
 
 
-    question_bank = fopen("./question_bank.csv", "r");
+    question_bank = fopen(category, "r");
 
 
     fgets(buff, BUFFER_SIZE, question_bank);
@@ -82,7 +82,7 @@ struct questionAndOptions* read_csv() {
         perror("malloc error questions\n");
     }
     
-    question_bank = fopen("./question_bank.csv", "r");
+    question_bank = fopen(category, "r");
     fgets(buff, BUFFER_SIZE, question_bank);
 
 
@@ -155,7 +155,55 @@ struct questionAndOptions* read_csv() {
 
 int main(int argc, char *argv[] ) {
 
-    struct questionAndOptions* questions = read_csv();
+    char category[BUFFER_SIZE];
+    printf("Options: science, geography, food, entertainment, sports, random, unusual\n");
+    printf("Enter category: ");
+    fgets(category, BUFFER_SIZE, stdin);
+    int categoryNewline = 0;
+    while (category[categoryNewline]) {
+        if (category[categoryNewline] == '\n' || category[categoryNewline] == '\r') {
+            category[categoryNewline] = '\0';
+        }
+        categoryNewline++;
+    }
+
+    if (strcmp(category, "science") == 0) {
+        printf("You entered: science\n");
+        sprintf(category, "./science.csv");
+    }
+    else if (strcmp(category, "geography") == 0) {
+        printf("You entered: geography\n");
+        sprintf(category, "./geography.csv");
+    }
+    else if (strcmp(category, "food") == 0) {
+        printf("You entered: food\n");
+        sprintf(category, "./food.csv");
+    }
+    else if (strcmp(category, "entertainment") == 0) {
+        printf("You entered: entertainment\n");
+        sprintf(category, "./entertainment.csv");
+    }
+    else if (strcmp(category, "sports") == 0) {
+        printf("You entered: sports\n");
+        sprintf(category, "./sports.csv");
+    }
+    else if (strcmp(category, "random") == 0) {
+        printf("You entered: random\n");
+        sprintf(category, "./question_bank.csv");
+    }
+    else if (strcmp(category, "unusual") == 0) {
+        printf("You entered: unusual\n");
+        sprintf(category, "./unusual.csv");
+    }
+    else {
+        printf("Invalid category: defaulting to general\n");
+        sprintf(category, "./question_bank.csv");
+    }
+
+
+
+
+    struct questionAndOptions* questions = read_csv(category);
 
     int goNext = 1;
     int listen_socket = server_setup(); 
