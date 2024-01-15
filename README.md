@@ -20,14 +20,14 @@ How does the user install/compile/run the program.
 
 Compilation options:
 
-* To compile everything: make
-* To compile just server: make server
-* To compile just client: make client
+* To compile everything: ``make``
+* To compile just server: ``make server``
+* To compile just client: ``make client``
 
 After compiling:
 
-* To run server: ./server
-* To run client: ./client
+* To run server: ``./server``
+* To run client: ``./client``
 
 How does the user interact with this program?
 
