@@ -29,13 +29,17 @@ int client_tcp_handshake(char* server_address);
 int server_tcp_handshake(int listen_socket);
 
 struct questionAndOptions {
-    char* question;
-    char* optionA;
-    char* optionB;
-    char* optionC;
-    char* optionD;
-    char* correctAnswer;
+    char question[BUFFER_SIZE];
+    char optionA[BUFFER_SIZE];
+    char optionB[BUFFER_SIZE];
+    char optionC[BUFFER_SIZE];
+    char optionD[BUFFER_SIZE];
+    char correctAnswer[BUFFER_SIZE];
 };
 
+struct player {
+    char name[BUFFER_SIZE];
+    int score;
+};
 
 #endif
