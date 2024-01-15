@@ -18,13 +18,26 @@ wins the game!
 
 How does the user install/compile/run the program.
 
-make program
-make run program
-./program
+Compilation options:
+
+* To compile everything: make
+* To compile just server: make server
+* To compile just client: make client
+
+After compiling:
+
+* To run server: ./server
+* To run client: ./client
 
 How does the user interact with this program?
 
-Using the keyboard, input the correct answer (A, B, C, D) 
-into the prompt based on the question provided. Continuously
-answer questions until game is finished! 
+For server users:
 
+1. Input the question set when prompted. If invalid string is inputted, it will default to the "general" set.
+2. Input the amount of questions you wish to have in the game (integer 1-10)
+3. The game will automatically start once the MAX_PLAYERS is reached!
+
+For client users:
+
+1. Input your name when prompted.
+2. For each question, input the correct answer using the keyboard (A, B, C, D) into the prompt based on the question provided. Continuously answer questions until game is finished!
