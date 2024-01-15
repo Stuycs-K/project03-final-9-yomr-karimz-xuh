@@ -7,7 +7,7 @@ void game_end(int signum) {
 }
 
 long getTimeDifference(struct timeval start, struct timeval end) {
-  return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
+    return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 }
 
 
@@ -83,23 +83,23 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
         // Calculate time taken by the player
         long timeTaken = getTimeDifference(startTime, endTime);
 
-    // award points based on time taken 
-    int points = 0;
-    if (timeTaken < 5000) {
-      points = 100;
-    } else if (timeTaken < 10000) {
-      points = 50;
-    } else {
-      points = 25;
-    }
+        // award points based on time taken 
+        int points = 0;
+        if (timeTaken < 5000) {
+            points = 100;
+        } else if (timeTaken < 10000) {
+            points = 50;
+        } else {
+            points = 25;
+        }
 
-    printf("Correct! Awarded %d points.\n", points);
-    return points;
-  } 
-  else {
-    printf("Incorrect! No points awarded.\n");
-    return 0;
-  }
+        printf("Correct! Awarded %d points.\n", points);
+        return points;
+    } 
+    else {
+        printf("Incorrect! No points awarded.\n");
+        return 0;
+    }
 }
 
 void clientLogic(int server_socket){
@@ -212,7 +212,7 @@ void clientLogic(int server_socket){
 
         }
 
-    current_question_number++;
+        current_question_number++;
     }
 
 
@@ -252,4 +252,3 @@ int main(int argc, char *argv[] ) {
     printf("client connected.\n");
     clientLogic(server_socket);
 }
-

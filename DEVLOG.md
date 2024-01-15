@@ -23,6 +23,13 @@ worked on game end system with displaying scores, sending points to server
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
 
+### 2024-01-11 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
+
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -39,6 +46,13 @@ refactored score system and implemented into client
 
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
+
+### 2024-01-11 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
+
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
 
 ## Zidane Karim
 
@@ -71,3 +85,29 @@ worked on moving subserver code to main; current error is that text will not sen
 
 ### 2024-01-10 - 2:40 pm 
 bug fixing for client.c broadcast message and beyond (pair programming)
+
+### 2024-01-11 - 2:40 pm 
+bug fixing for client.c for broadcast message and 
+now making so we send structs over sockets (pair programming)
+
+### 2024-01-11 - 7:00 pm 
+fixed all existing errors by changing to struct send
+fixed comparison of answers by removing newline and carriages
+fixed hanging of reads
+working on sending multiple questions to client
+
+### 2024-01-11 - 11:00 pm 
+multiple questions working
+
+### 2024-01-12 - 2:50 pm
+bug fixing for select (pair programming) 
+
+### 2024-01-13 - 6:50 pm
+game end system added
+score system added
+game is (technically) complete, remaining bugs are solving for client DCs midway through the game, and more testing with greater # of questions
+and players 
+
+
+### 2024-01-14 - 1:00 am
+working category selection
