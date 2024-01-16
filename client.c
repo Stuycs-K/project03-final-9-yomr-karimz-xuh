@@ -80,7 +80,7 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
         // Calculate time taken by the player
         struct timeval endTime;
-        endTime = gettimeofday(&endTime, NULL);
+        gettimeofday(&endTime, NULL);
         long timeTaken = getTimeDifference(startTime, endTime);
     
         // award points based on time taken 
@@ -102,8 +102,8 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
             points = 10;
         }
 
-        printf("endTime: %d\n", endTime);
-        printf("starttime: %d\n", startTime);
+        //printf("endTime: %d\n", endTime);
+        //printf("starttime: %d\n", startTime);
 
         printf("Correct! Awarded %d points.\n", points);
         return points;
