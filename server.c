@@ -452,7 +452,7 @@ int main(int argc, char *argv[] ) {
 
 
 
-    
+
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
         close(client_sockets[i]);
@@ -461,5 +461,3 @@ int main(int argc, char *argv[] ) {
     return 0;
     
 }
-
-

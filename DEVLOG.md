@@ -30,6 +30,9 @@ now making so we send structs over sockets (pair programming)
 ### 2024-01-12 - 2:50 pm
 bug fixing for select (pair programming) 
 
+### 2024-01-15 8 pm
+fixed time not being correctly calculated for point system and indentations
+
 ## Haokun Xu
 
 ### 2024-01-04 - 2:30 pm
@@ -53,6 +56,9 @@ now making so we send structs over sockets (pair programming)
 
 ### 2024-01-12 - 2:50 pm
 bug fixing for select (pair programming) 
+
+### 2024-01-15 - 8:30 pm
+updated README and worked on fixing client disconnection
 
 ## Zidane Karim
 
@@ -107,7 +113,6 @@ game end system added
 score system added
 game is (technically) complete, remaining bugs are solving for client DCs midway through the game, and more testing with greater # of questions
 and players 
-
 
 ### 2024-01-14 - 1:00 am
 working category selection
