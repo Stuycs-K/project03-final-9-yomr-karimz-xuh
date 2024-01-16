@@ -40,9 +40,7 @@ void send_int(int* client_sockets, int num_clients, int message) {
     }
 }
 
-
 struct questionAndOptions* read_csv(char category[BUFFER_SIZE]) {
-
     // num of lines
     FILE* question_bank = fopen(category, "r");
     //printf("opened file\n");
@@ -58,11 +56,9 @@ struct questionAndOptions* read_csv(char category[BUFFER_SIZE]) {
     //printf("lineCount: %d\n", lineCount);
     fclose(question_bank);
 
-
     question_bank = fopen(category, "r");
-
-
     fgets(buff, BUFFER_SIZE, question_bank);
+
     char* tempBuff = strdup(buff);
     if (tempBuff == NULL) {
         perror("strdup error tempBuff\n");
@@ -201,8 +197,6 @@ int main(int argc, char *argv[] ) {
     }
 
 
-
-
     struct questionAndOptions* questions = read_csv(category);
 
     int goNext = 1;
@@ -302,8 +296,7 @@ int main(int argc, char *argv[] ) {
                     start = 1;
                     //printf("Sent all options\n");
                 }
-        
-
+    
             }
         }
 
@@ -322,7 +315,7 @@ int main(int argc, char *argv[] ) {
                     close(client_sockets[i]);
                     client_sockets[i] = 0;  // Set to 0 to mark it as invalid
                     readySockets[i] = 1; // so other players can continue
-                    } 
+                } 
                 else {
                     //printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
                     if (clientGoNext <= 0) {
@@ -342,13 +335,7 @@ int main(int argc, char *argv[] ) {
                         
 
                     }
-
-
-
-                    
-                }
-                
-
+                }                
             }
         }
 
@@ -381,10 +368,6 @@ int main(int argc, char *argv[] ) {
     }
     
     // make sure all clients are finished 
-
-
-
-
     //printf("Out of the while loop\n");
 
     for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -415,11 +398,7 @@ int main(int argc, char *argv[] ) {
     printf("%s", message);
     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
 
-    
 
-
-
-    
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
         close(client_sockets[i]);
