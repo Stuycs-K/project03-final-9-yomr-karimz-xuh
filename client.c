@@ -85,12 +85,21 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
 
         // award points based on time taken 
         int points = 0;
-        if (timeTaken < 5000) {
+        // 5, 10, 20 seconds
+        //5 seconds = 100 points
+        //10 seconds = 50 points
+        //20 seconds = 25 points
+        if (timeTaken <= 5000) {
             points = 100;
-        } else if (timeTaken < 10000) {
+        }
+        else if (timeTaken <= 10000) {
             points = 50;
-        } else {
+        }
+        else if (timeTaken <= 20000) {
             points = 25;
+        }
+        else {
+            points = 10;
         }
 
         printf("Correct! Awarded %d points.\n", points);
