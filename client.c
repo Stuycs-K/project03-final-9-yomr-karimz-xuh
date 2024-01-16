@@ -173,7 +173,8 @@ void clientLogic(int server_socket){
 
         //printf("bytes read for question buffer %d\n", bytes_read);
         sprintf(response_buffer, "Question %d: %s\nA: %s\nB: %s\nC: %s\nD: %s\n", current_question_number+1, question_buffer->question, question_buffer->optionA, question_buffer->optionB, question_buffer->optionC, question_buffer->optionD);
-
+        struct timeval start_time;
+        gettimeofday(&start_time, NULL);
         
         printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
@@ -190,8 +191,7 @@ void clientLogic(int server_socket){
 
         printf("Your answer: %s\n", response_buffer); // print client response to client
 
-        struct timeval start_time;
-        gettimeofday(&start_time, NULL);
+        
 
         strcpy(correct_answer_buffer, question_buffer->correctAnswer);
         strcpy(optionA, question_buffer->optionA);
