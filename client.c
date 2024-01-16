@@ -34,21 +34,47 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
         i++;
     }
 
-    if (strcmp(playerAnswer, "A") == 0) {
-        strcpy(playerAnswer, optionA);
-    }
-    else if (strcmp(playerAnswer, "B") == 0) {
-        strcpy(playerAnswer, optionB);
-    }
-    else if (strcmp(playerAnswer, "C") == 0) {
-        strcpy(playerAnswer, optionC);
-    }
-    else if (strcmp(playerAnswer, "D") == 0) {
-        strcpy(playerAnswer, optionD);
+    int checkValid = 0;
+
+    while (checkValid == 0) {
+        if (strcmp(playerAnswer, "A") == 0) {
+            strcpy(playerAnswer, optionA);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "B") == 0) {
+            strcpy(playerAnswer, optionB);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "C") == 0) {
+            strcpy(playerAnswer, optionC);
+            checkValid = 1;
+        }
+        else if (strcmp(playerAnswer, "D") == 0) {
+            strcpy(playerAnswer, optionD);
+            checkValid = 1;
+        }
+        else {
+            printf("Invalid answer: please answer with A, B, C, or D: ");
+            fgets(playerAnswer, BUFFER_SIZE, stdin);
+            i = 0;
+            while (playerAnswer[i]) {
+                if (playerAnswer[i] == '\n' || playerAnswer[i] == '\r') {
+                    playerAnswer[i] = '\0';
+                }
+                if (playerAnswer[i] >= 'a' && playerAnswer[i] <= 'z') {
+                    //printf("changing case\n");
+                    playerAnswer[i] = playerAnswer[i] - 32;
+                }
+                i++;
+            }
+        }
+
     }
 
-    printf("playerAnswer: %s\n", playerAnswer);
-    printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
+    
+
+    //printf("playerAnswer: %s\n", playerAnswer);
+    //printf("compare result: %d\n", strcmp(playerAnswer, correct_answer_buffer));
 
     // Check if the player's answer is correct
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
@@ -82,6 +108,7 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
 void clientLogic(int server_socket){
     //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
+    char name[BUFFER_SIZE];
     struct questionAndOptions question_buffer[BUFFER_SIZE];
     char correct_answer_buffer[BUFFER_SIZE];
     char optionA[BUFFER_SIZE];
@@ -93,6 +120,14 @@ void clientLogic(int server_socket){
     int bytes_read;
     int current_question_number = 0;
 
+    int max_questions = 0;
+
+    printf("What is your name?:  ");
+    fgets(name, BUFFER_SIZE, stdin);
+    struct player player;
+    strcpy(player.name, name);
+    player.score = score;
+
     // wait for game to start, block until server sends a question
     bytes_read = read(server_socket, response_buffer, sizeof(response_buffer));
     if (bytes_read <= 0) {
@@ -100,19 +135,22 @@ void clientLogic(int server_socket){
         exit(0);
     }
 
+    bytes_read = read(server_socket, &max_questions, sizeof(max_questions));
+    if (bytes_read <= 0) {
+        printf("server disconnected max\n");
+        exit(0);
+    }
+
+    //printf("number of questions: %d\n", max_questions);
+
+
     printf("%s\n", response_buffer);
     int goNext = 0;
     int begin = 0;
     //printf("Here1!\n");
   // once server sends the first question, loop
-    while (1) {
+    while (current_question_number < max_questions) {
         int i = 0;
-        
-
-       
-
-        
-
         // read question
         bytes_read = read(server_socket, question_buffer, sizeof(question_buffer));
         if (bytes_read <= 0) {
@@ -122,16 +160,15 @@ void clientLogic(int server_socket){
         goNext = 0;
         write(server_socket, &goNext, sizeof(goNext)); // write to server to PAUSE to next question
         
-        printf("question from server: %sbruh\n", question_buffer->question);
+        //printf("question from server: %sbruh\n", question_buffer->question);
 
-        printf("bytes read for question buffer %d\n", bytes_read);
+        //printf("bytes read for question buffer %d\n", bytes_read);
         sprintf(response_buffer, "Question %d: %s\nA: %s\nB: %s\nC: %s\nD: %s\n", current_question_number+1, question_buffer->question, question_buffer->optionA, question_buffer->optionB, question_buffer->optionC, question_buffer->optionD);
 
         
         printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
-        goNext = 1;
-        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
@@ -158,8 +195,22 @@ void clientLogic(int server_socket){
         score += add_points;
 
         goNext = 1;
-        
-        //write(server_socket, score, sizeof(response_buffer)); // write the client's total score back to the server
+        write(server_socket, &goNext, sizeof(goNext)); // write to server to go to next question
+        player.score = score;
+
+        int receivedNext;
+        bytes_read = read(server_socket, &receivedNext, sizeof(receivedNext));
+        if (bytes_read <= 0) {
+            printf("server disconnected for before send player\n");
+            exit(0);
+        }
+        if (receivedNext == 100) {
+            //printf("receivedNext: %d\n", receivedNext);
+            write(server_socket, &player, sizeof(player)); // write player struct to server
+
+
+
+        }
 
         current_question_number++;
     }
@@ -167,8 +218,29 @@ void clientLogic(int server_socket){
 
 
   // display final scores at the end
+    printf("Your final score is: %d\n", score);
+    printf("Thanks for playing!\n");
 
-  close(server_socket);
+    // write the player struct to the server
+    
+
+    // bytes_read = write(server_socket, &player, sizeof(player));
+    // if (bytes_read <= 0) {
+    //     printf("server disconnected for final score\n");
+    //     exit(0);
+    // }
+    // printf("sent player struct to server, with %d bytes read\n", bytes_read);
+
+    // read the winner from the server
+    char winner[BUFFER_SIZE];
+    bytes_read = read(server_socket, winner, BUFFER_SIZE);
+    if (bytes_read <= 0) {
+        printf("server disconnected for winner\n");
+        exit(0);
+    }
+    printf("%s\n", winner);
+
+    close(server_socket);
 }
 
 int main(int argc, char *argv[] ) {
