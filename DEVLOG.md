@@ -57,6 +57,9 @@ now making so we send structs over sockets (pair programming)
 ### 2024-01-12 - 2:50 pm
 bug fixing for select (pair programming) 
 
+### 2024-01-15 - 8:30 pm
+updated README and worked on fixing client disconnection
+
 ## Zidane Karim
 
 ### 2024-01-04 - 5:00 pm
