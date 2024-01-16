@@ -15,8 +15,6 @@ long getTimeDifference(struct timeval start, struct timeval end) {
 
 // function to check if the player's answer is correct and award points
 int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval startTime, char* optionA, char* optionB, char* optionC, char* optionD) {
-    struct timeval endTime;
-    gettimeofday(&endTime, NULL);
 
     //printf("correct_answer_buffer: %s\n", correct_answer_buffer);
 
@@ -55,8 +53,10 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
     // Check if the player's answer is correct
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
         // Calculate time taken by the player
+        struct timeval endTime;
+        endTime = gettimeofday(&endTime, NULL);
         long timeTaken = getTimeDifference(startTime, endTime);
-
+    
         // award points based on time taken 
         int points = 0;
         if (timeTaken < 5000) {
@@ -66,6 +66,9 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
         } else {
             points = 25;
         }
+
+        printf("endTime: %d\n", endTime);
+        printf("starttime: %d\n", startTime);
 
         printf("Correct! Awarded %d points.\n", points);
         return points;
@@ -77,9 +80,6 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
 }
 
 void clientLogic(int server_socket){
-
-
-
     //struct questionAndOptions * question_buffer;
     char response_buffer[BUFFER_SIZE];
     struct questionAndOptions question_buffer[BUFFER_SIZE];
@@ -145,7 +145,7 @@ void clientLogic(int server_socket){
         printf("Your answer: %s\n", response_buffer); // print client response to client
 
         struct timeval start_time;
-        gettimeofday(&start_time, NULL);
+        start_time = gettimeofday(&start_time, NULL);
 
         strcpy(correct_answer_buffer, question_buffer->correctAnswer);
         strcpy(optionA, question_buffer->optionA);
