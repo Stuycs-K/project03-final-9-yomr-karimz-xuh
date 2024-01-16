@@ -3,6 +3,10 @@
 void broadcast_message(int* client_sockets, int num_clients, char message[BUFFER_SIZE], int sizeBuff) {
     for (int i = 0; i < num_clients; i++) {
         //printf("sizeBuff: %d\n", sizeBuff);
+        if (client_sockets[i] == 0) {
+            continue;
+        }
+
         int bytes_sent = write(client_sockets[i], message, BUFFER_SIZE);
         if (bytes_sent < 0) {
             perror("write error\n");
@@ -22,6 +26,9 @@ void send_question(int* client_sockets, int num_clients, struct questionAndOptio
         // printf("optionC: %s\n", question.optionC);
         // printf("optionD: %s\n", question.optionD);
         // printf("correctAnswer: %s\n", question.correctAnswer);
+        if (client_sockets[i] == 0) {
+            continue;
+        }
 
         write(client_sockets[i], &question, sizeBuff);
         //printf("client socket: %d\n", client_sockets[i]);
@@ -31,16 +38,20 @@ void send_question(int* client_sockets, int num_clients, struct questionAndOptio
 
 void send_int(int* client_sockets, int num_clients, int message) {
     for (int i = 0; i < num_clients; i++) {
-        printf("sending int to client %d\n", i);
-        printf("int: %d\n", message);
-
+        //printf("sending int to client %d\n", i);
+        //printf("int: %d\n", message);
+        if (client_sockets[i] == 0) {
+            continue;
+        }
         write(client_sockets[i], &message, sizeof(message));
         //printf("client socket: %d\n", client_sockets[i]);
         //printf("\n");
     }
 }
 
+
 struct questionAndOptions* read_csv(char category[BUFFER_SIZE]) {
+
     // num of lines
     FILE* question_bank = fopen(category, "r");
     //printf("opened file\n");
@@ -56,9 +67,11 @@ struct questionAndOptions* read_csv(char category[BUFFER_SIZE]) {
     //printf("lineCount: %d\n", lineCount);
     fclose(question_bank);
 
-    question_bank = fopen(category, "r");
-    fgets(buff, BUFFER_SIZE, question_bank);
 
+    question_bank = fopen(category, "r");
+
+
+    fgets(buff, BUFFER_SIZE, question_bank);
     char* tempBuff = strdup(buff);
     if (tempBuff == NULL) {
         perror("strdup error tempBuff\n");
@@ -197,6 +210,8 @@ int main(int argc, char *argv[] ) {
     }
 
 
+
+
     struct questionAndOptions* questions = read_csv(category);
 
     int goNext = 1;
@@ -247,14 +262,15 @@ int main(int argc, char *argv[] ) {
 
 
     fd_set read_fds;
-    FD_ZERO(&read_fds);
+    
     int questionIndex = 0;
     int start = 0; 
+    int readySockets[MAX_PLAYERS];
     while (questionIndex <= num_questions) {
         
         //printf("Out of the for loop\n");
         
-        
+        FD_ZERO(&read_fds);
         FD_SET(listen_socket, &read_fds);
 
         for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -264,7 +280,7 @@ int main(int argc, char *argv[] ) {
         }
 
         select(FD_SETSIZE, &read_fds, NULL, NULL, NULL);
-
+    
         // Check for new client connections
         if (FD_ISSET(listen_socket, &read_fds)) {
             int new_client_socket = accept(listen_socket, NULL, NULL);
@@ -296,17 +312,16 @@ int main(int argc, char *argv[] ) {
                     start = 1;
                     //printf("Sent all options\n");
                 }
-    
+        
+
             }
         }
 
         // Every client socket sends an int, goNext. If goNext == 1 in EVERY CLIENT, then send the next question to all clients
         
-        int readySockets[MAX_PLAYERS];
-
+        
         for (int i = 0; i < MAX_PLAYERS; i++) {
-            if (FD_ISSET(client_sockets[i], &read_fds)) {
-                printf("running read\n");
+            if (FD_ISSET(client_sockets[i], &read_fds) && client_sockets[i] > 0) { 
                 int clientGoNext = 0;
                 int bytes_client = read(client_sockets[i], &clientGoNext, sizeof(goNext));
                 if (bytes_client <= 0) {
@@ -315,6 +330,7 @@ int main(int argc, char *argv[] ) {
                     close(client_sockets[i]);
                     client_sockets[i] = 0;  // Set to 0 to mark it as invalid
                     readySockets[i] = 1; // so other players can continue
+                    continue;
                 } 
                 else {
                     //printf("client %d with socket %d sent %d\n", i, client_sockets[i], clientGoNext);
@@ -335,9 +351,20 @@ int main(int argc, char *argv[] ) {
                         
 
                     }
-                }                
+
+
+
+                    
+                }
+                
+
             }
         }
+
+        
+
+
+        //printf("client_count: %d\n", client_count);
 
         for (int i = 0; i < MAX_PLAYERS; i++) {
             if (readySockets[i] != 1) {
@@ -348,6 +375,23 @@ int main(int argc, char *argv[] ) {
                 goNext = 1;
             }
         }
+
+        // printf("Going to send question!\n");
+        // printf("goNext: %d\n", goNext);
+
+        // if client_sockets[i] == 0 for all i, then exit the program saying a message that no one is playing
+        // otherwise do nothing
+        int allZero = 1;
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (client_sockets[i] != 0) {
+                allZero = 0;
+                break;
+            }
+        }
+        if (allZero == 1) {
+            printf("No one is playing!\n");
+            exit(0);
+        } 
 
         if (client_count == MAX_PLAYERS && start == 1 && goNext == 1) {
             //printf("Question %d\n", questionIndex);
@@ -361,13 +405,19 @@ int main(int argc, char *argv[] ) {
 
             goNext = 0;
             for (int i = 0; i < MAX_PLAYERS; i++) {
-                readySockets[i] = 0;
+                printf("Client %d is ready, with readySocket %d\n", client_sockets[i],  readySockets[i]);
+
+                if (client_sockets[i] > 0) readySockets[i] = 0;
             }
             questionIndex++;
         }
     }
     
     // make sure all clients are finished 
+
+
+
+
     //printf("Out of the while loop\n");
 
     for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -398,6 +448,10 @@ int main(int argc, char *argv[] ) {
     printf("%s", message);
     broadcast_message(client_sockets, client_count, message, strlen(message)+1);
 
+    
+
+
+
 
     // Close client sockets and perform cleanup if needed
     for (int i = 0; i < client_count; i++) {
@@ -407,5 +461,3 @@ int main(int argc, char *argv[] ) {
     return 0;
     
 }
-
-
