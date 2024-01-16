@@ -111,3 +111,6 @@ and players
 
 ### 2024-01-14 - 1:00 am
 working category selection
+
+### 2024-01-15 - 7:40 pm
+working client DCs midway through the game, game automatically closes at 0 players
