@@ -7,11 +7,12 @@ void game_end(int signum) {
 }
 
 long getTimeDifference(struct timeval start, struct timeval end) {
+
+    printf("Start Time: %ld.%06ld\n", start.tv_sec, start.tv_usec);
+    printf("End Time: %ld.%06ld\n", end.tv_sec, end.tv_usec);
+
     return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 }
-
-
-
 
 // function to check if the player's answer is correct and award points
 int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval startTime, char* optionA, char* optionB, char* optionC, char* optionD) {
@@ -80,7 +81,7 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
     if (strcmp(playerAnswer, correct_answer_buffer) == 0) {
         // Calculate time taken by the player
         struct timeval endTime;
-        endTime = gettimeofday(&endTime, NULL);
+        gettimeofday(&endTime, NULL);
         long timeTaken = getTimeDifference(startTime, endTime);
     
         // award points based on time taken 
@@ -92,10 +93,6 @@ int pointSystem(char* correct_answer_buffer, char* playerAnswer, struct timeval 
         } else {
             points = 25;
         }
-
-        printf("endTime: %d\n", endTime);
-        printf("starttime: %d\n", startTime);
-
         printf("Correct! Awarded %d points.\n", points);
         return points;
     } 
@@ -148,7 +145,7 @@ void clientLogic(int server_socket){
     int goNext = 0;
     int begin = 0;
     //printf("Here1!\n");
-  // once server sends the first question, loop
+    // once server sends the first question, loop
     while (current_question_number < max_questions) {
         int i = 0;
         // read question
@@ -165,10 +162,12 @@ void clientLogic(int server_socket){
         //printf("bytes read for question buffer %d\n", bytes_read);
         sprintf(response_buffer, "Question %d: %s\nA: %s\nB: %s\nC: %s\nD: %s\n", current_question_number+1, question_buffer->question, question_buffer->optionA, question_buffer->optionB, question_buffer->optionC, question_buffer->optionD);
 
+        struct timeval start_time;
+        gettimeofday(&start_time, NULL);
         
         printf("%s", response_buffer); // print question to client
         fgets(response_buffer, sizeof(response_buffer), stdin); // read client response from command line
-
+        
         while (response_buffer[i]) {
             // uppercase the response
             if (response_buffer[i] >= 'a' && response_buffer[i] <= 'z') {
@@ -180,9 +179,6 @@ void clientLogic(int server_socket){
         }
 
         printf("Your answer: %s\n", response_buffer); // print client response to client
-
-        struct timeval start_time;
-        start_time = gettimeofday(&start_time, NULL);
 
         strcpy(correct_answer_buffer, question_buffer->correctAnswer);
         strcpy(optionA, question_buffer->optionA);
